@@ -5,16 +5,18 @@
 kv(Map,Key,Value) :-
     term_hash(Key,Hash),
     Depth is floor(log(Hash)/log(2)),  % log2(Hash)
-    Mask is 1 << Depth,
-    kv(Mask,Map,Hash,Key,Value).
+    kv(Depth,Hash,Map,Hash,Key,Value).
 
-kv(1,node(Hash,Key,Value,_L,_R),Hash,Key,Value) :-
+kv(0,_P,node(Hash,Key,Value,_,_),Hash,Key,Value) :-
     !.
-kv(Mask0,node(_H,_K,_V,L,R),Hash,Key,Value) :-
-    Mask0 >= 1,
-    ( 0 is Hash /\ Mask0 -> Child=L; Child=R ),
-    Mask1 is Mask0 >> 1,
-    kv(Mask1,Child,Hash,Key,Value).
+kv(Depth,P,node(H,K,V,A,B),Hash,Key,Value) :-
+    Depth > 0,
+    Node = node(H,K,V,A,B),
+    N is 4 + (P /\ 1),
+    arg(N,Node,Child),
+    Depth1 is Depth - 1,
+    P1 is P >> 1,
+    kv(Depth1,P1,Child,Hash,Key,Value).
 
 
 show(Map) :-
