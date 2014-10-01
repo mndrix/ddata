@@ -17,5 +17,4 @@ dedup(Xs,Unique) :-
 :- use_module(library(quickcheck)).
 :- use_module(library(tap)).
 
-insert_exists(todo) :-
-    quickcheck(prop_insert_exists/1).
+quickcheck(prop_insert_exists/1).

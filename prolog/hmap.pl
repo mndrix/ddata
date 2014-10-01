@@ -4,15 +4,15 @@
 
 kv(Map,Key,Value) :-
     term_hash(Key,Hash),
-    %debug(hmap,"~2r -> ~w", [Hash,Key]),
-    Mask is 1 << (Hash /\ 0xF),
-    Partial is Hash >> 4,
+    Depth is floor(log(Hash)/log(2)),  % log2(Hash)
+    Mask is 1 << Depth,
+    Partial is Hash,
     kv(Mask,Partial,Map,Hash,Key,Value).
 
-kv(0,_P,node(Hash,Key,Value,_L,_R),Hash,Key,Value) :-
+kv(1,_P,node(Hash,Key,Value,_L,_R),Hash,Key,Value) :-
     !.
 kv(Mask0,P,node(_H,_K,_V,L,R),Hash,Key,Value) :-
-    Mask0 \== 0,
+    Mask0 >= 1,
     Mask1 is Mask0 >> 1,
     ( 0 is Hash /\ Mask0 -> Child=L; Child=R ),
     kv(Mask1,P,Child,Hash,Key,Value).
