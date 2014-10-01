@@ -7,16 +7,24 @@ kv(Map,Key,Value) :-
     Depth is floor(log(Hash)/log(4)),  % log4(Hash)
     kv(Depth,Hash,Map,Hash,Key,Value).
 
-kv(0,_P,node(Hash,Key,Value,_,_,_,_),Hash,Key,Value) :-
+kv(0,_P,Node,Hash,Key,Value) :-
+    node(Node,Hash,Key,Value),
     !.
-kv(Depth,P,node(H,K,V,A,B,C,D),Hash,Key,Value) :-
+kv(Depth,P,Node,Hash,Key,Value) :-
     Depth > 0,
-    Node = node(H,K,V,A,B,C,D),
+    node(Node,_,_,_),
     N is 4 + (P /\ 0b11),
     arg(N,Node,Child),
     Depth1 is Depth - 1,
     P1 is P >> 2,
     kv(Depth1,P1,Child,Hash,Key,Value).
+
+
+node(Node,Hash,Key,Value) :-
+    functor(Node,node,7 /*3+4*/),
+    arg(1,Node,Hash),
+    arg(2,Node,Key),
+    arg(3,Node,Value).
 
 
 show(Map) :-
