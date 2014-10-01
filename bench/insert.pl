@@ -5,14 +5,15 @@
 
 :- use_module(bench, [compare/1]).
 
-batch_size(3).
+batch_size(10).
 
 main(_) :-
     random_keys(Keys),
     random_values(Keys,Vals),
     compare([ assoc(_,Keys,Vals)
-            , hmap(_,Keys,Vals)
             , dict(_,Keys,Vals)
+            , hmap(_,Keys,Vals)
+            , rbtree(_,Keys,Vals)
            ]).
 
 
@@ -46,3 +47,11 @@ assoc(Assoc,Keys,Vals) :-
 
 insert_assoc(K,V,A0,A1) :-
     put_assoc(K,A0,V,A1).
+
+
+rbtree(Tree,Keys,Vals) :-
+    rb_empty(E),
+    foldl(insert_rbtree,Keys,Vals,E,Tree).
+
+insert_rbtree(K,V,T0,T1) :-
+    rb_insert(T0,K,V,T1).
