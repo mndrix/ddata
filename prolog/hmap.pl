@@ -5,19 +5,19 @@
 kv(Map,Key,Value) :-
     term_hash(Key,Hash),
     Depth is floor(log(Hash)/log(8)),  % log8(Hash)
-    kv(Depth,Hash,Map,Hash,Key,Value).
+    kv(Depth,Hash,Map,Key,Value).
 
-kv(0,_P,Node,_Hash,Key,Value) :-
+kv(0,_P,Node,Key,Value) :-
     node(Node,Key,Value),
     !.
-kv(Depth,P,Node,Hash,Key,Value) :-
+kv(Depth,P,Node,Key,Value) :-
     Depth > 0,
     node(Node,_,_),
     N is 3 + (P /\ 0b111),
     arg(N,Node,Child),
     Depth1 is Depth - 1,
     P1 is P >> 3,
-    kv(Depth1,P1,Child,Hash,Key,Value).
+    kv(Depth1,P1,Child,Key,Value).
 
 
 node(Node,Key,Value) :-
