@@ -6,7 +6,33 @@
 %  Calculate a hash for a ground Term.
 hash(Term,Hash) :-
     must_be(ground,Term),
-    term_hash(Term,Hash).
+    variant_sha1(Term,Hex),
+    hex_int(Hex,Hash).
+
+hex_int(Hex,Int) :-
+    atom_codes(Hex,Codes),
+    foldl(sum_hex,Codes,0,Int).
+
+sum_hex(Char,Accum0,Accum) :-
+    hex_val(Char,N),
+    Accum is (Accum0 << 4) + N.
+
+hex_val(0'0,0).
+hex_val(0'1,1).
+hex_val(0'2,2).
+hex_val(0'3,3).
+hex_val(0'4,4).
+hex_val(0'5,5).
+hex_val(0'6,6).
+hex_val(0'7,7).
+hex_val(0'8,8).
+hex_val(0'9,9).
+hex_val(0'a,10).
+hex_val(0'b,11).
+hex_val(0'c,12).
+hex_val(0'd,13).
+hex_val(0'e,14).
+hex_val(0'f,15).
 
 
 kv(Map,Key,Value) :-
