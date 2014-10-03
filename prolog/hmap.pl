@@ -8,8 +8,10 @@ kv(Map,Key,Value) :-
     kv(Depth,Hash,Map,Key,Value).
 
 kv(0,_P,Node,Key,Value) :-
-    node(Node,Key,Value),
-    !.
+    node(Node,ExistingKey,ExistingValue),
+    !,
+    ( Key = ExistingKey -> true; throw(collision(Key,ExistingKey)) ),
+    Value = ExistingValue.
 kv(Depth,P,Node,Key,Value) :-
     Depth > 0,
     node(Node,_,_),
