@@ -4,7 +4,8 @@
 
 kv(Map,Key,Value) :-
     term_hash(Key,Hash),
-    Depth is floor(log(Hash)/log(8)),  % log8(Hash)
+    % n = Hash + 1, because hashes can be zero
+    Depth is ceil(log(7*(Hash+1)+1)/log(8))-1,  % ceil(log8(7n+1))-1
     kv(Depth,Hash,Map,Key,Value).
 
 kv(0,_P,Node,Key,Value) :-
