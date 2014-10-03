@@ -1,9 +1,16 @@
 :- module(hmap, [kv/3]).
 
-% node(Hash,Key,Value)
+
+%% hash(+Term,-Hash:integer) is det.
+%
+%  Calculate a hash for a ground Term.
+hash(Term,Hash) :-
+    must_be(ground,Term),
+    term_hash(Term,Hash).
+
 
 kv(Map,Key,Value) :-
-    term_hash(Key,Hash),
+    hash(Key,Hash),
     % n = Hash + 1, because hashes can be zero
     Depth is ceil(log(7*(Hash+1)+1)/log(8))-1,  % ceil(log8(7n+1))-1
     kv(Depth,Hash,Map,Key,Value).
