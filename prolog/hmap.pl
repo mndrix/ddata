@@ -4,10 +4,22 @@
 %% hash(+Term,-Hash:integer) is det.
 %
 %  Calculate a hash for a ground Term.
+:- if(current_prolog_flag(hmap_wants_collisions,true)).
+
+% for testing: term_hash/2 collides more often than SHA1
+hash(Term,Hash) :-
+    must_be(ground,Term),
+    term_hash(Term,Hash).
+
+:- else.
+
 hash(Term,Hash) :-
     must_be(ground,Term),
     variant_sha1(Term,Hex),
     hex_int(Hex,Hash).
+
+:- endif.
+
 
 hex_int(Hex,Int) :-
     atom_codes(Hex,Codes),
@@ -34,6 +46,43 @@ hex_val(0'd,13).
 hex_val(0'e,14).
 hex_val(0'f,15).
 
+%% attr(Var, Value)
+%
+%  True if Var has =|hmap|= attribute of Value.
+attr(Var,Value) :-
+    ( nonvar(Var) ->
+        fail
+    ; get_attr(Var,hmap,ExistingValue) ->
+        Value = ExistingValue
+    ; otherwise ->
+        put_attr(Var,hmap,Value)
+    ).
+
+
+attr_unify_hook(LazyKvA,VarOrVal) :-
+    ( get_attr(VarOrVal,hmap,LazyKvB) ->
+        % two lazy nodes try using same attributed variable
+        ( LazyKvA = LazyKvB ->
+            % same key requires no more work
+            true
+        ; otherwise ->
+            % differing keys require recursive inserts
+            throw("TODO: trigger this code in a test (with a collision?)"),
+            node(Node,_,_),
+            VarOrVal = Node,
+            LazyKvA = lazy_kv(DepthA,PartialA,KeyA,ValueA),
+            kv(DepthA,PartialA,Node,KeyA,ValueA),
+            LazyKvB = lazy_kv(DepthB,PartialB,KeyB,ValueB),
+            kv(DepthB,PartialB,Node,KeyB,ValueB)
+        )
+    ; var(VarOrVal) ->
+        throw("eager node is a variable. should never happen")
+    ; otherwise ->
+        % insert our lazy key-value into this eager node
+        LazyKvA = lazy_kv(Depth,P,Key,Value),
+        kv(Depth,P,VarOrVal,Key,Value)
+    ).
+
 
 kv(Map,Key,Value) :-
     hash(Key,Hash),
@@ -46,6 +95,10 @@ kv(0,_P,Node,Key,Value) :-
     !,
     ( Key = ExistingKey -> true; throw(collision(Key,ExistingKey)) ),
     Value = ExistingValue.
+kv(Depth,P,Node,Key,Value) :-
+    % postpone walking the tree until later
+    attr(Node,lazy_kv(Depth,P,Key,Value)),
+    !.
 kv(Depth,P,Node,Key,Value) :-
     Depth > 0,
     node(Node,_,_),
