@@ -1,5 +1,17 @@
 :- module(hmap, [kv/3]).
 
+/*
+This library is implemented in a very non-logical fashion.  Because
+it uses hash functions (an inherently one way operation) and attributed
+variables (a non-logical optimization, in this case), that's the price
+we pay.
+
+However, the publicly accessible APIs (kv/3, etc) should
+present the illusion of logical operations.  As long as
+functional/imperative code stays hidden beneath the covers,
+we'll be fine.
+*/
+
 
 %% hash(+Term,-Hash:integer) is det.
 %
@@ -80,6 +92,10 @@ attr_unify_hook(LazyKvA,VarOrVal) :-
 
 
 kv(Map,Key,Value) :-
+    var(Key),
+    !,
+    unknown_key(Map,Key,Value).
+kv(Map,Key,Value) :-
     hash(Key,Hash),
     % n = Hash + 1, because hashes can be zero
     Depth is ceil(log(7*(Hash+1)+1)/log(8))-1,  % ceil(log8(7n+1))-1
@@ -108,6 +124,21 @@ node(Node,Key,Value) :-
     functor(Node,node,10 /*2+8*/),
     arg(1,Node,Key),
     arg(2,Node,Value).
+
+
+% non-logical stuff is to avoid instantiating attributed variables
+% while traversing the tree
+unknown_key(Node,Key,Value) :-
+    get_attr(Node,hmap,lazy_kv(_Depth,_Partial,Key,Value)),
+    !.
+unknown_key(Node,Key,Value) :-
+    nonvar(Node),
+    ( node(Node,Key,Value),
+      ground(Key)
+    ; between(3,10,N),
+      arg(N,Node,Child),
+      unknown_key(Child,Key,Value)
+    ).
 
 
 show(Map) :-
