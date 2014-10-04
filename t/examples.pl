@@ -20,21 +20,3 @@
 'duplicate keys'(fail) :-
     kv(Map, one, 1),
     kv(Map, one, won).
-
-
-unification :-
-    % describe the first map
-    kv(One, alpha, a),
-    kv(One, beta, b),
-    kv(One, gamma, c),
-
-    % describe the second map, leaving holes for values
-    kv(Two, alpha, A),
-    kv(Two, beta, B),
-    kv(Two, gamma, C),
-
-    % unify
-    One = Two,
-    A == a,
-    B == b,
-    C == c.

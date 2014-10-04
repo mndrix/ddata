@@ -62,7 +62,6 @@ attr_unify_hook(LazyKvA,VarOrVal) :-
             true
         ; otherwise ->
             % differing keys require recursive inserts
-            throw("TODO: trigger this code in a test (with a collision?)"),
             node(Node,_,_),
             VarOrVal = Node,
             LazyKvA = lazy_kv(DepthA,PartialA,KeyA,ValueA),
