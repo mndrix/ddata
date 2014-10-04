@@ -4,21 +4,16 @@
 %% hash(+Term,-Hash:integer) is det.
 %
 %  Calculate a hash for a ground Term.
-:- if(current_prolog_flag(hmap_wants_collisions,true)).
-
+/*
 % for testing: term_hash/2 collides more often than SHA1
 hash(Term,Hash) :-
     must_be(ground,Term),
     term_hash(Term,Hash).
-
-:- else.
-
+*/
 hash(Term,Hash) :-
     must_be(ground,Term),
     variant_sha1(Term,Hex),
     hex_int(Hex,Hash).
-
-:- endif.
 
 
 hex_int(Hex,Int) :-
