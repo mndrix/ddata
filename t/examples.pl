@@ -1,4 +1,4 @@
-:- use_module(library(hmap)).
+:- use_module(library(ddata/map)).
 
 :- use_module(library(tap)).
 

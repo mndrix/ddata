@@ -1,6 +1,6 @@
 # Synopsis
 
-    :- use_module(library(hmap)).
+    :- use_module(library(ddata/map)).
     main :-
         % give one motivating example
         true.
@@ -13,14 +13,14 @@
 
 # Installation
 
-Using SWI-Prolog 6.3 or later:
+Using SWI-Prolog 7.1 or later:
 
-    ?- pack_install(hmap).
+    ?- pack_install(ddata).
 
 This module uses [semantic versioning](http://semver.org/).
 
 Source code available and pull requests accepted at
-http://github.com/mndrix/hmap
+http://github.com/mndrix/ddata
 
 @author Michael Hendricks <michael@ndrix.org>
 @license unlicense

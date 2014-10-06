@@ -1,8 +1,10 @@
-name(hmap).
-title('').
+name(ddata).
+title('Declarative data structures').
+
 version('0.0.1').
-download('http://packs.ndrix.com/hmap/hmap-0.0.1.tgz').
+download('https://github.com/mndrix/ddata/archive/v0.0.1.zip').
+
 author('Michael Hendricks','michael@ndrix.org').
 packager('Michael Hendricks','michael@ndrix.org').
 maintainer('Michael Hendricks','michael@ndrix.org').
-home('http://packs.ndrix.com/hmap/index.html').
+home('https://github.com/mndrix/ddata').

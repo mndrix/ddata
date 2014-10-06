@@ -1,4 +1,4 @@
-:- use_module(library(hmap)).
+:- use_module(library(ddata/map)).
 :- use_module(library(random), [random_permutation/2]).
 
 prop_insert_exists(Ks:list(integer)) :-

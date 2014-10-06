@@ -1,4 +1,4 @@
-:- module(hmap, [kv/3]).
+:- module(ddata_map, [kv/3]).
 
 /*
 This library is implemented in a very non-logical fashion.  Because
@@ -56,19 +56,19 @@ hex_val(0'f,15).
 
 %% attr(Var, Value)
 %
-%  True if Var has =|hmap|= attribute of Value.
+%  True if Var has =|ddata_map|= attribute of Value.
 attr(Var,Value) :-
     ( nonvar(Var) ->
         fail
-    ; get_attr(Var,hmap,ExistingValue) ->
+    ; get_attr(Var,ddata_map,ExistingValue) ->
         Value = ExistingValue
     ; otherwise ->
-        put_attr(Var,hmap,Value)
+        put_attr(Var,ddata_map,Value)
     ).
 
 
 attr_unify_hook(LazyKvA,VarOrVal) :-
-    ( get_attr(VarOrVal,hmap,LazyKvB) ->
+    ( get_attr(VarOrVal,ddata_map,LazyKvB) ->
         % two lazy nodes try using same attributed variable
         ( LazyKvA = LazyKvB ->
             % same key requires no more work
@@ -129,7 +129,7 @@ node(Node,Key,Value) :-
 % non-logical stuff is to avoid instantiating attributed variables
 % while traversing the tree
 unknown_key(Node,Key,Value) :-
-    get_attr(Node,hmap,lazy_kv(_Depth,_Partial,Key,Value)),
+    get_attr(Node,ddata_map,lazy_kv(_Depth,_Partial,Key,Value)),
     !.
 unknown_key(Node,Key,Value) :-
     nonvar(Node),

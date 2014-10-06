@@ -1,4 +1,4 @@
-:- use_module(library(hmap), [kv/3]).
+:- use_module(library(ddata/map), [kv/3]).
 :- use_module(library(quickcheck), [arbitrary/2]).
 :- use_module(library(random), [random_permutation/2]).
 :- use_module(library(assoc), [empty_assoc/1,put_assoc/4]).
@@ -12,7 +12,7 @@ main(_) :-
     random_values(Keys,Vals),
     compare([ assoc(_,Keys,Vals)
             , dict(_,Keys,Vals)
-            , hmap(_,Keys,Vals)
+            , map(_,Keys,Vals)
             , rbtree(_,Keys,Vals)
            ]).
 
@@ -30,7 +30,7 @@ random_values(Keys,Values) :-
     maplist(arbitrary(any),Values).
 
 
-hmap(Map,Keys,Vals) :-
+map(Map,Keys,Vals) :-
     maplist(kv(Map),Keys,Vals).
 
 
