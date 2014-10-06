@@ -98,7 +98,7 @@ kv(Map,Key,Value) :-
 kv(Map,Key,Value) :-
     hash(Key,Hash),
     % n = Hash + 1, because hashes can be zero
-    Depth is ceil(log(7*(Hash+1)+1)/log(8))-1,  % ceil(log8(7n+1))-1
+    hash_depth(Hash+1,Depth),
     kv(Depth,Hash,Map,Key,Value).
 
 kv(0,_P,Node,Key,Value) :-
@@ -118,6 +118,10 @@ kv(Depth,P,Node,Key,Value) :-
     Depth1 is Depth - 1,
     P1 is P >> 3,
     kv(Depth1,P1,Child,Key,Value).
+
+
+hash_depth(N,Depth) :-
+    Depth is ceil(log(7*N+1)/log(8))-1.  % ceil(log8(7n+1))-1
 
 
 node(Node,Key,Value) :-
