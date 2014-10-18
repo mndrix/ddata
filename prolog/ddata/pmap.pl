@@ -98,9 +98,9 @@ insert(Depth,Hash,K,V,Trim,With) :-
     trim_pushdown(Trim,Without).
 insert(Depth0,Hash,K,V,Without,With) :-
     hash_depth_n(Hash,Depth0,N),
-    differ_in_one_child(Without,With,N,Old,New),
+    differ_in_one_child(Without,With,N,ChildWithout,ChildWith),
     succ(Depth0,Depth1),
-    insert(Depth1,Hash,K,V,Old,New).
+    insert(Depth1,Hash,K,V,ChildWithout,ChildWith).
 
 
 hash_depth_n(Hash,Depth,N) :-
