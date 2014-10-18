@@ -103,7 +103,7 @@ insert(Depth,Hash,K,V,Trim,With) :-
 insert(Depth0,Hash,K,V,Without,With) :-
     parent(Without),
     parent(With),
-    hash_depth_n(Depth0,Hash,N),
+    hash_depth_n(Hash,Depth0,N),
     differ_in_one_child(Without,With,N,Old,New),
     succ(Depth0,Depth1),
     insert(Depth1,Hash,K,V,Old,New).
