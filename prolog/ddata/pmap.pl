@@ -89,17 +89,13 @@ map_args_(N,Goal,TermA,TermB) :-
 insert(Depth,Hash,Key,Value,empty,Trim) :-
     Trim=trim(Depth,Hash,Key,Value).
 insert(Depth,Hash,K,V,Trim,With) :-
-    parent(With),
     trim_depth(Trim,Depth),
-    trim_hash(Trim,TrimHash),
-    ( ground(TrimHash) ->
-        trim_pushdown(Trim,Without),
-        insert(Depth,Hash,K,V,Without,With)
-    ; otherwise ->
-        parent(Without),
-        insert(Depth,Hash,K,V,Without,With),
-        trim_pushdown(Trim,Without)
-    ).
+    hash_depth_n(Hash,Depth,N),
+    nth_child(N,With,ChildWith),
+    succ(Depth,Depth1),
+    insert(Depth1,Hash,K,V,ChildWithout,ChildWith),
+    differ_in_one_child(Without,With,N,ChildWithout,ChildWith),
+    trim_pushdown(Trim,Without).
 insert(Depth0,Hash,K,V,Without,With) :-
     parent(Without),
     parent(With),
