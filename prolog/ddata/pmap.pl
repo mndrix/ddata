@@ -90,15 +90,12 @@ insert(Depth,Hash,Key,Value,empty,Trim) :-
     Trim=trim(Depth,Hash,Key,Value).
 insert(Depth,Hash,K,V,Trim,With) :-
     trim_depth(Trim,Depth),
-
-    hash_depth_n(Hash,Depth,N),
-    nth_child(N,With,ChildWith),
-    succ(Depth,Depth1),
-    insert(Depth1,Hash,K,V,ChildWithout,ChildWith),
-    differ_in_one_child(Without,With,N,ChildWithout,ChildWith),
-
+    insert_parents(Depth,Hash,K,V,Without,With),
     trim_pushdown(Trim,Without).
 insert(Depth,Hash,K,V,Without,With) :-
+    insert_parents(Depth,Hash,K,V,Without,With).
+
+insert_parents(Depth,Hash,K,V,Without,With) :-
     hash_depth_n(Hash,Depth,N),
     nth_child(N,With,ChildWith),
     succ(Depth,Depth1),
