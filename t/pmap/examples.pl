@@ -4,7 +4,7 @@
 
 'three insertions' :-
     % declare map contents
-    delta(hello, world, _,Map1),
+    delta(hello, world, empty,Map1),
     delta(goodbye, friends, Map1,Map2),
     delta(list, [1,2,3], Map2,Map),
 
@@ -18,12 +18,12 @@
 
 
 'duplicate keys'(fail) :-
-    delta(one, 1, _, Map1),
+    delta(one, 1, empty, Map1),
     delta(one, won, Map1, _).
 
 
 'iterate keys' :-
-    delta(alpha, one, _, Map1),
+    delta(alpha, one, empty, Map1),
     delta(beta, two, Map1, Map2),
     delta(gamma, three, Map2, Map3),
     delta(delta, four, Map3, Map),
@@ -32,7 +32,7 @@
     Pairs == [ alpha-one, beta-two, delta-four, gamma-three ].
 
 'iterate values' :-
-    delta(alpha, greek, _, Map1),
+    delta(alpha, greek, empty, Map1),
     delta(beta, greek, Map1, Map2),
     delta(aleph, hebrew, Map2, Map3),
     delta(beth, hebrew, Map3, Map),

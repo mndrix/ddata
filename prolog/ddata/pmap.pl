@@ -3,6 +3,10 @@
 
 delta(Key,Value,Without,With) :-
     must_be(ground,Key),
+    once( nonvar(Without)
+        ; nonvar(With)
+        ; throw('In delta/4, one of Without or With must be nonvar')
+        ),
     ddata_map:hash(Key,Hash),
     insert(0,Hash,Key,Value,Without,With).
 
