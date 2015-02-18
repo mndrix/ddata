@@ -91,7 +91,10 @@ map_args_(N,Goal,TermA,TermB) :-
 
 %% known_key(+Depth:nonneg,+Hash,+Key,?Value,?Without,?With)
 insert(Depth,Hash,Key,Value,empty,Trim) :-
-    Trim=trim(Depth,Hash,Key,Value),
+    trim_depth(Trim,Depth),
+    trim_hash(Trim,Hash),
+    trim_key(Trim,Key),
+    trim_value(Trim,Value),
     !.
 insert(Depth,Hash,K,V,Trim,With) :-
     trim_depth(Trim,Depth),
