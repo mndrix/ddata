@@ -99,7 +99,7 @@ insert(Depth,Hash,Key,Value,empty,Trim) :-
 insert(Depth,Hash,K,V,Trim,With) :-
     trim_depth(Trim,Depth),
     trim_hash(Trim,TrimHash),
-    dif(TrimHash,Hash),
+    dif(TrimHash,Hash),  % implies that Trim's key \= K
     trim_pushdown(Trim,Without),
     insert_parents(Depth,Hash,K,V,Without,With),
     !.
