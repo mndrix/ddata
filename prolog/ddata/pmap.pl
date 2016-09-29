@@ -109,6 +109,7 @@ insert(Depth,Hash,K,V,Without,With) :-
 insert_parents(Depth,Hash,K,V,Without,With) :-
     hash_depth_n(Hash,Depth,N),
     nth_child(N,With,ChildWith),
+    nth_child(N,Without,ChildWithout),
     succ(Depth,Depth1),
     insert(Depth1,Hash,K,V,ChildWithout,ChildWith),
     differ_in_one_child(Without,With,N,ChildWithout,ChildWith).
@@ -125,8 +126,16 @@ kv(Map,Key,Value) :-
     ground(Key),
     !,
     delta(Key,Value,_,Map).
-kv(_Map,_Key,_Value) :-
-    todo("iterate each node in the tree").
+kv(Map,Key,Value) :-
+    kv_(Map,Key,Value).
+
+kv_(Trim,Key,Value) :-
+    trim_key(Trim,Key),
+    trim_value(Trim,Value).
+kv_(Parent,Key,Value) :-
+    between(1,8,N),
+    nth_child(N,Parent,Child),
+    kv_(Child,Key,Value).
 
 
 % trim_pushdown(?Trim,?AsParent)
