@@ -7,13 +7,11 @@
 
 # Description
 
-# Changes in this Version
-
-  * ...
+Declarative data structures in Prolog.
 
 # Installation
 
-Using SWI-Prolog 7.1 or later:
+Using SWI-Prolog 7.3 or later:
 
     ?- pack_install(ddata).
 
@@ -21,6 +19,3 @@ This module uses [semantic versioning](http://semver.org/).
 
 Source code available and pull requests accepted at
 http://github.com/mndrix/ddata
-
-@author Michael Hendricks <michael@ndrix.org>
-@license unlicense
