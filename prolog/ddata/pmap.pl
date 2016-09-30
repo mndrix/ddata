@@ -136,8 +136,8 @@ kv_(Trim,Key,Value) :-
     trim_key(Trim,Key),
     trim_value(Trim,Value).
 kv_(Plump,Key,Value) :-
-    between(1,8,N),
-    nth_child(N,Plump,Child),
+    plump(Plump),
+    nth_child(_,Plump,Child),
     kv_(Child,Key,Value).
 
 
