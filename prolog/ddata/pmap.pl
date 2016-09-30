@@ -49,6 +49,9 @@ empty_plump(P) :-
     foreach(between(1,8,N),arg(N,P,empty)).
 
 
+% two plump nodes (A0 and B0) are identical to each other except for the child
+% in position N.  A has ChildA in that position; B has ChildB.  ChildA and
+% ChildB are different from one another.
 differ_in_one_child(A0,B0,N,ChildA,ChildB) :-
     plump(A0),
     plump(B0),
@@ -67,6 +70,12 @@ nth_child(N,Plump,Child) :-
     arg(N,Plump,Child).
 
 
+% call once(Goal(N,A,B)) for each corresponding argument of TermA and TermB. N
+% is the argument's index (1-based). A is the argument for TermA.  B is the
+% argument for TermB.
+%
+% There's no guarantee about the order in which arguments
+% are traversed.  TermA and TermB must have the same functor.
 map_args(Goal,TermA,TermB) :-
     functor(TermA,F,Arity),
     functor(TermB,F,Arity),
@@ -83,7 +92,7 @@ map_args_(N,Goal,TermA,TermB) :-
 
 
 
-%% known_key(+Depth:nonneg,+Hash,+Key,?Value,?Without,?With)
+% insert(+Depth:nonneg,+Hash,+Key,?Value,?Without,?With)
 insert(Depth,Hash,Key,Value,empty,Trim) :-
     trim_depth(Trim,Depth),
     trim_hash(Trim,Hash),
