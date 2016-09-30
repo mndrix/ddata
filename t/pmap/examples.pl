@@ -30,6 +30,19 @@ greek(Map) :-
     delta(one, won, Map1, _).
 
 
+size :-
+    greek(Map),
+    size(Map,N),
+    N == 4.
+
+
+keys :-
+    greek(Map),
+    keys(Map,Keys0),
+    msort(Keys0,Keys),  % make sure that key order is predictable
+    Keys == [alpha,beta,delta,gamma].
+
+
 'iterate keys' :-
     greek(Map),
 

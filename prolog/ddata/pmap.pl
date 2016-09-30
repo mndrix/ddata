@@ -1,4 +1,4 @@
-:- module(ddata_pmap, [delta/4,kv/3]).
+:- module(ddata_pmap, [delta/4,keys/2,kv/3,size/2]).
 :- use_module(library(ddata/map), []).
 
 /*
@@ -165,3 +165,46 @@ trim_as_plump(Trim0,AsPlump) :-
     hash_depth_n(Hash,Depth0,N),
     empty_plump(Empty),
     differ_in_one_child(Empty,AsPlump,N,empty,Trim1).
+
+
+:- multifile quickcheck:arbitrary/2.
+quickcheck:arbitrary(pmap,Map) :-
+    quickcheck:arbitrary(pmap(any,any),Map).
+quickcheck:arbitrary(pmap(K,V),Map) :-
+    quickcheck:arbitrary(list(K),Keys0),
+    sort(Keys0,Keys), % remove duplicates
+    length(Keys,Len),
+    length(Vals,Len),
+    maplist(quickcheck:arbitrary(V),Vals),
+    foldl(delta,Keys,Vals,empty,Map).
+
+
+%% size(+Map:pmap, -N:nonneg) is det.
+%
+%  True if Map has N keys.
+size(Map,N) :-
+    must_be(nonvar,Map),
+    size_(Map,N).
+
+size_(empty, 0) :-
+    !.
+size_(Trim, 1) :-
+    trim(Trim),
+    !.
+size_(Plump,N) :-
+    bagof(Len,N^Child^(nth_child(N,Plump,Child),size(Child,Len)),Lens),
+    sumlist(Lens, N).
+
+
+%% keys(+Map:pmap, -Keys:list) is det.
+%% keys(?Map:pmap, +Keys:list) is det.
+%
+%  True if Map has a key for each of Keys.
+keys(Map,Keys) :-
+    ( nonvar(Keys) ->  % delta/4 can't yet handle an unbound Key
+        foldl(delta,Keys,_Vals,empty,Map)
+    ; nonvar(Map) ->
+        findall(Key,kv(Map,Key,_),Keys)
+    ; otherwise ->
+        throw('In keys/2, one of the arguments must be nonvar')
+    ).
