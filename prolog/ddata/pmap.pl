@@ -155,11 +155,11 @@ trim_as_plump(Trim0,AsPlump) :-
     trim_value(Trim0,Value),
 
     % describe trim element at Depth + 1
-    succ(Depth0,Depth1),
     trim_depth(Trim1,Depth1),
     trim_hash(Trim1,Hash),
     trim_key(Trim1,Key),
     trim_value(Trim1,Value),
+    succ(Depth0,Depth1),
 
     % relate empty plump to plump containing deeper trim element
     hash_depth_n(Hash,Depth0,N),
