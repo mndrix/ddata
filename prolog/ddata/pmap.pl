@@ -2,6 +2,10 @@
 :- use_module(library(ddata/map), []).
 
 /*
+Goal:
+
+A fast, persistent map amenable to unification.
+
 Design:
 
 A pmap is a key-value map stored as a hash array mapped trie.  A node in the
