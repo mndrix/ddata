@@ -1,5 +1,13 @@
 :- use_module(library(ddata/pmap)).
 
+greek(Map) :-
+    foldl(
+        delta,
+        [alpha,beta,gamma,delta],
+        [one,  two, three,four ],
+        empty,Map
+    ).
+
 :- use_module(library(tap)).
 
 'three insertions' :-
@@ -23,10 +31,7 @@
 
 
 'iterate keys' :-
-    delta(alpha, one, empty, Map1),
-    delta(beta, two, Map1, Map2),
-    delta(gamma, three, Map2, Map3),
-    delta(delta, four, Map3, Map),
+    greek(Map),
 
     setof(Key-Value,kv(Map,Key,Value),Pairs),
     Pairs == [ alpha-one, beta-two, delta-four, gamma-three ].
