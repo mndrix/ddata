@@ -1,4 +1,4 @@
-:- module(ddata_pmap, [delta/4,keys/2,kv/3,size/2]).
+:- module(ddata_pmap, [delete/3,delta/4,keys/2,kv/3,size/2]).
 :- use_module(library(ddata/map), []).
 
 /*
@@ -208,3 +208,12 @@ keys(Map,Keys) :-
     ; otherwise ->
         throw('In keys/2, one of the arguments must be nonvar')
     ).
+
+
+%% delete(+Key,+Map0:pmap,-Map:pmap) is semidet.
+%% delete(+Key,-Map0:pmap,+Map:pmap) is semidet.
+%
+%  True if removing Key from Map0 yields Map.  A convenience
+%  wrapper around delta/4.
+delete(Key,MapWith,MapWithout) :-
+    delta(Key,_Val,MapWithout,MapWith).
