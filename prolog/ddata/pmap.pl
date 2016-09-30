@@ -62,37 +62,9 @@ differ_(N,M,A,A) :-
     dif(N,M).
 
 
-map_children(P,Goal) :-
-    plump(P),
-    functor(P,_,N),
-    map_children_(N,P,Goal).
-
-map_children_(0,_,_) :-
-    !.
-map_children_(N,Plump,Goal) :-
-    N > 0,
-    arg(N,Plump,Child),
-    call(Goal,Child),
-    N0 is N - 1,
-    map_children_(N0,Plump,Goal).
-
-
 nth_child(N,Plump,Child) :-
     plump(Plump),
     arg(N,Plump,Child).
-
-
-map_args(Goal,TermA) :-
-    functor(TermA,_,Arity),
-    map_args_(Arity,Goal,TermA).
-
-map_args_(0,_,_) :-
-    !.
-map_args_(N,Goal,TermA) :-
-    arg(N,TermA,A),
-    once(call(Goal,N,A)),
-    N0 is N-1,
-    map_args_(N0,Goal,TermA).
 
 
 map_args(Goal,TermA,TermB) :-
