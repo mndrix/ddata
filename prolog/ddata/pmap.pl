@@ -1,6 +1,28 @@
 :- module(ddata_pmap, [delta/4,kv/3]).
 :- use_module(library(ddata/map), []).
 
+/*
+Design:
+
+A pmap is a key-value map stored as a hash array mapped trie.  A node in the
+tree can be one of three kinds:
+
+  * empty
+  * plump
+  * trim
+
+An `empty` node contains no key-value pairs.  A `plump` node contains N
+subtrees, but doesn't contain any key-value pairs within itself.  If all the
+subtrees of a `plump` node together contain only a single key-value pair, the
+`plump` node can be collapsed into a `trim` node containing that key-value pair.
+
+A `trim` node represents a `plump` subtree that's been trimmed off to a single
+element. Conceptually, the key-value pair still resides at a leaf somewhere
+beneath the `plump` node, but that entire portion of the tree is optimized into
+a single node to avoid storing and searching the entire, deep structure.
+
+*/
+
 delta(Key,Value,Without,With) :-
     must_be(ground,Key),
     once( nonvar(Without)
@@ -18,18 +40,18 @@ trim_key(trim(_,_,Key,_), Key).
 trim_value(trim(_,_,_,Value), Value).
 
 
-parent(P) :-
-    functor(P,parent,8).
+plump(P) :-
+    functor(P,plump,8).
 
 
-empty_parent(P) :-
-    parent(P),
+empty_plump(P) :-
+    plump(P),
     foreach(between(1,8,N),arg(N,P,empty)).
 
 
 differ_in_one_child(A0,B0,N,ChildA,ChildB) :-
-    parent(A0),
-    parent(B0),
+    plump(A0),
+    plump(B0),
     nth_child(N,A0,ChildA),
     nth_child(N,B0,ChildB),
     map_args(differ_(N),A0,B0).
@@ -41,23 +63,23 @@ differ_(N,M,A,A) :-
 
 
 map_children(P,Goal) :-
-    parent(P),
+    plump(P),
     functor(P,_,N),
     map_children_(N,P,Goal).
 
 map_children_(0,_,_) :-
     !.
-map_children_(N,Parent,Goal) :-
+map_children_(N,Plump,Goal) :-
     N > 0,
-    arg(N,Parent,Child),
+    arg(N,Plump,Child),
     call(Goal,Child),
     N0 is N - 1,
-    map_children_(N0,Parent,Goal).
+    map_children_(N0,Plump,Goal).
 
 
-nth_child(N,Parent,Child) :-
-    parent(Parent),
-    arg(N,Parent,Child).
+nth_child(N,Plump,Child) :-
+    plump(Plump),
+    arg(N,Plump,Child).
 
 
 map_args(Goal,TermA) :-
@@ -100,13 +122,13 @@ insert(Depth,Hash,K,V,Trim,With) :-
     trim_depth(Trim,Depth),
     trim_hash(Trim,TrimHash),
     dif(TrimHash,Hash),  % implies that Trim's key \= K
-    trim_as_parent(Trim,Without),
-    insert_parents(Depth,Hash,K,V,Without,With),
+    trim_as_plump(Trim,Without),
+    insert_plumps(Depth,Hash,K,V,Without,With),
     !.
 insert(Depth,Hash,K,V,Without,With) :-
-    insert_parents(Depth,Hash,K,V,Without,With).
+    insert_plumps(Depth,Hash,K,V,Without,With).
 
-insert_parents(Depth,Hash,K,V,Without,With) :-
+insert_plumps(Depth,Hash,K,V,Without,With) :-
     hash_depth_n(Hash,Depth,N),
     nth_child(N,With,ChildWith),
     nth_child(N,Without,ChildWithout),
@@ -132,15 +154,15 @@ kv(Map,Key,Value) :-
 kv_(Trim,Key,Value) :-
     trim_key(Trim,Key),
     trim_value(Trim,Value).
-kv_(Parent,Key,Value) :-
+kv_(Plump,Key,Value) :-
     between(1,8,N),
-    nth_child(N,Parent,Child),
+    nth_child(N,Plump,Child),
     kv_(Child,Key,Value).
 
 
-% trim_as_parent(?Trim,?AsParent)
-trim_as_parent(Trim0,AsParent) :-
-    parent(AsParent),
+% trim_as_plump(?Trim,?AsPlump)
+trim_as_plump(Trim0,AsPlump) :-
+    plump(AsPlump),
 
     % describe trim element at Depth0
     trim_depth(Trim0,Depth0),
@@ -155,7 +177,7 @@ trim_as_parent(Trim0,AsParent) :-
     trim_key(Trim1,Key),
     trim_value(Trim1,Value),
 
-    % relate empty parent to parent containing deeper trim element
+    % relate empty plump to plump containing deeper trim element
     hash_depth_n(Hash,Depth0,N),
-    empty_parent(Empty),
-    differ_in_one_child(Empty,AsParent,N,empty,Trim1).
+    empty_plump(Empty),
+    differ_in_one_child(Empty,AsPlump,N,empty,Trim1).
