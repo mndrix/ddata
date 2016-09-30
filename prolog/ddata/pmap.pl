@@ -100,7 +100,7 @@ insert(Depth,Hash,K,V,Trim,With) :-
     trim_depth(Trim,Depth),
     trim_hash(Trim,TrimHash),
     dif(TrimHash,Hash),  % implies that Trim's key \= K
-    trim_pushdown(Trim,Without),
+    trim_as_parent(Trim,Without),
     insert_parents(Depth,Hash,K,V,Without,With),
     !.
 insert(Depth,Hash,K,V,Without,With) :-
@@ -138,8 +138,8 @@ kv_(Parent,Key,Value) :-
     kv_(Child,Key,Value).
 
 
-% trim_pushdown(?Trim,?AsParent)
-trim_pushdown(Trim0,AsParent) :-
+% trim_as_parent(?Trim,?AsParent)
+trim_as_parent(Trim0,AsParent) :-
     parent(AsParent),
 
     % describe trim element at Depth0
