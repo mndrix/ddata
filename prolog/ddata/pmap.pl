@@ -100,6 +100,7 @@ insert(Depth,Hash,Key,Value,empty,Trim) :-
     trim_value(Trim,Value),
     !.
 insert(Depth,Hash,K,V,Trim,With) :-
+    plump(With),
     trim_depth(Trim,Depth),
     trim_hash(Trim,TrimHash),
     dif(TrimHash,Hash),  % implies that Trim's key \= K
@@ -110,6 +111,8 @@ insert(Depth,Hash,K,V,Without,With) :-
     insert_plumps(Depth,Hash,K,V,Without,With).
 
 insert_plumps(Depth,Hash,K,V,Without,With) :-
+    plump(Without),
+    plump(With),
     hash_depth_n(Hash,Depth,N),
     nth_child(N,With,ChildWith),
     nth_child(N,Without,ChildWithout),
