@@ -45,8 +45,12 @@ keys :-
 
 'iterate keys' :-
     greek(Map),
-
     setof(Key-Value,kv(Map,Key,Value),Pairs),
+    Pairs == [ alpha-one, beta-two, delta-four, gamma-three ].
+
+'iterate keys with delta/4' :-
+    greek(Map),
+    setof(Key-Value,Map0^delta(Key,Value,Map0,Map),Pairs),
     Pairs == [ alpha-one, beta-two, delta-four, gamma-three ].
 
 'iterate values' :-

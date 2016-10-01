@@ -29,16 +29,21 @@ a single node to avoid storing and searching the entire, deep structure.
 
 %% delta(+Key,?Value,+Without,?With) is semidet.
 %% delta(+Key,?Value,?Without,+With) is semidet.
+%% delta(?Key,?Value,?Without,+With) is multi.
 %
 %  True if With maps Key to Value, Without has no mapping for Key and all other
 %  mappings are identical. This is the fundamental pmap operation upon which all
 %  others are built.
 delta(Key,Value,Without,With) :-
-    must_be(ground,Key),
-    once( nonvar(Without)
-        ; nonvar(With)
-        ; throw('In delta/4, one of Without or With must be nonvar')
-        ),
+    % validate the mode
+    ( ground(Key), nonvar(Without) -> true
+    ; ground(Key), nonvar(With) -> true
+    ; var(Key), nonvar(With) ->
+        kv(With,Key,_)
+    ; otherwise ->
+        throw('Invalid mode for delta/4')
+    ),
+
     ddata_map:hash(Key,Hash),
     insert(0,Hash,Key,Value,Without,With).
 
