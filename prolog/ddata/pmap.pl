@@ -4,7 +4,7 @@
 /*
 Goal:
 
-A fast, persistent map amenable to unification.
+A fast, persistent map supporting unification and reversible predicates.
 
 Design:
 
