@@ -1,4 +1,4 @@
-:- module(ddata_pmap, [delete/3,delta/4,keys/2,kv/3,size/2]).
+:- module(ddata_pmap, [cons/4,delete/3,delta/4,keys/2,kv/3,size/2]).
 :- use_module(library(ddata/map), []).
 
 /*
@@ -236,3 +236,14 @@ keys(Map,Keys) :-
 %  wrapper around delta/4.
 delete(Key,MapWith,MapWithout) :-
     delta(Key,_Val,MapWithout,MapWith).
+
+
+%% cons(+Key,?Value,+Map0,-Map) is semidet.
+%% cons(?Key,?Value,?Map0,+Map) is semidet.
+%
+%  True if Key maps to Value in Map but is absent from Map0. This is identical
+%  to delta/4 but it arbitrarily chooses a single mapping to remove (instead of
+%  iterating) when called without a key.  It can be helpful for incrementally
+%  building and deconstructing a map.
+cons(Key,Value,MapWithout,MapWith) :-
+    once(delta(Key,Value,MapWithout,MapWith)).
