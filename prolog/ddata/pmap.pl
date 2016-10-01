@@ -27,6 +27,12 @@ a single node to avoid storing and searching the entire, deep structure.
 
 */
 
+%% delta(+Key,?Value,+Without,?With) is semidet.
+%% delta(+Key,?Value,?Without,+With) is semidet.
+%
+%  True if With maps Key to Value, Without has no mapping for Key and all other
+%  mappings are identical. This is the fundamental pmap operation upon which all
+%  others are built.
 delta(Key,Value,Without,With) :-
     must_be(ground,Key),
     once( nonvar(Without)
