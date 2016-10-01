@@ -138,6 +138,10 @@ hash_depth_n_(Hash,Depth,N) :-
     N is ((Hash >> (3*Depth)) /\ 0b111) + 1.
 
 
+%% kv(+Map,+Key,?Value) is semidet.
+%% kv(+Map,?Key,?Value) is multi.
+%
+%  True if Map maps Key to Value.
 kv(Map,Key,Value) :-
     ground(Key),
     !,
