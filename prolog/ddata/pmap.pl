@@ -1,4 +1,4 @@
-:- module(ddata_pmap, [cons/4,delete/3,delta/4,keys/2,kv/3,size/2]).
+:- module(ddata_pmap, [cons/4,delete/3,delta/4,keys/2,kv//2,kv/3,size/2]).
 :- use_module(library(ddata/map), []).
 
 /*
@@ -161,6 +161,13 @@ kv_(Plump,Key,Value) :-
     plump(Plump),
     nth_child(_,Plump,Child),
     kv_(Child,Key,Value).
+
+
+%% kv(Key,Value)//
+%
+%  Identical to kv/3 but designed for use in a DCG with the Map as state.
+kv(Key,Value,Map,Map) :-
+    kv(Map,Key,Value).
 
 
 % trim_as_plump(?Trim,?AsPlump)
