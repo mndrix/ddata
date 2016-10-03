@@ -1,4 +1,13 @@
-:- module(ddata_pmap, [cons/4,delete/3,delta/4,keys/2,kv//2,kv/3,size/2]).
+:- module(ddata_pmap, [
+    cons/4,
+    delete/3,
+    delta/4,
+    keys/2,
+    kv//2,
+    kv/3,
+    pairs/2,
+    size/2
+]).
 :- use_module(library(ddata/map), []).
 
 /*
@@ -254,3 +263,40 @@ delete(Key,MapWith,MapWithout) :-
 %  building and deconstructing a map.
 cons(Key,Value,MapWithout,MapWith) :-
     once(delta(Key,Value,MapWithout,MapWith)).
+
+
+%% pairs(+Map,-KVs:list) is det.
+%% pairs(-Map,+KVs:list) is semidet.
+%
+%  True if the pairs in KVs represent the mappings in Map.  Although many
+%  orderings of KVs would produce the same Map, one ordering is chosen
+%  arbitrarily when KVs is unbound.
+pairs(Map,KVs) :-
+    pairs(KVs,empty,Map).
+
+pairs([],Map,Map) :-
+    !.  % optimization (trim empty choicepoint)
+pairs([K-V|KVs],Map0,Map) :-
+    % See Note_pipeline
+    ( nonvar(Map) ->
+        cons(K,V,Map1,Map),
+        pairs(KVs,Map0,Map1)
+    ; otherwise ->
+        cons(K,V,Map0,Map1),
+        pairs(KVs,Map1,Map)
+    ).
+
+/*
+Note_pipeline:
+
+It's a little annoying that we have to repeat ourselves within the two branches
+of the second clause of pairs/3.  The branches are identical except for the
+order of variables.  It seems like there should be a way to describe the
+pipeline and allow the compiler to assign variables for us.
+
+This is very similar to the way that DCG notation works.  If I had described
+pairs/3 using DCG notation (as pairs//1), it would have generated the variable
+ordering in the second branch.  Standard DCG notation has no way to generate
+the ordering in the first branch.
+
+*/

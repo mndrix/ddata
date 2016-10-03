@@ -64,3 +64,19 @@ keys :-
 
     setof(Letter,kv(Map,Letter,hebrew),Hebrew),
     Hebrew == [aleph, beth].
+
+
+'build map from pairs' :-
+    pairs(Map,[a-1,b-2,c-3]),
+    kv(Map,a,One),
+    One == 1,
+    kv(Map,b,Two),
+    Two == 2,
+    kv(Map,c,Three),
+    Three == 3.
+
+'build pairs from map' :-
+    greek(M),
+    pairs(M,Kvs0),
+    msort(Kvs0,Kvs),  % make sure key order is predictable
+    Kvs == [alpha-one, beta-two, delta-four, gamma-three].
