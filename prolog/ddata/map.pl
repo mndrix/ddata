@@ -27,17 +27,18 @@ hash(Term,Hash) :-
     must_be(ground,Term),
     format(string(S),'~k',[Term]),
     sha_hash(S,Bytes,[algorithm(sha1)]),
-    bytes_int(Bytes,Hash).
+    bytes_int(8,Bytes,Hash).
 :- endif.
 
 
-bytes_int(Bytes,N) :-
-    bytes_int(Bytes,0,N).
+bytes_int(8,Bytes,Sum) :-
+    bytes_int(8,Bytes,0,Sum).
 
-bytes_int([],Sum,Sum).
-bytes_int([Byte|Bytes],N0,N) :-
-    N1 is N0 << 8 + Byte,
-    bytes_int(Bytes,N1,N).
+bytes_int(0,_,Sum,Sum) :- !.
+bytes_int(N0, [Byte|Bytes],Sum0,Sum) :-
+    N is N0 - 1,
+    Sum1 is Sum0 << 8 + Byte,
+    bytes_int(N,Bytes,Sum1,Sum).
 
 
 %% attr(Var, Value)
