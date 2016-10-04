@@ -1,4 +1,5 @@
 :- module(ddata_map, [kv/3]).
+:- use_module(library(sha),[sha_hash/3]).
 
 /*
 This library is implemented in a very non-logical fashion.  Because
@@ -24,35 +25,20 @@ hash(Term,Hash) :-
 :- else.
 hash(Term,Hash) :-
     must_be(ground,Term),
-    variant_sha1(Term,Hex),
-    hex_int(Hex,Hash).
+    format(string(S),'~k',[Term]),
+    sha_hash(S,Bytes,[algorithm(sha1)]),
+    bytes_int(Bytes,Hash).
 :- endif.
 
 
-hex_int(Hex,Int) :-
-    atom_codes(Hex,Codes),
-    foldl(sum_hex,Codes,0,Int).
+bytes_int(Bytes,N) :-
+    bytes_int(Bytes,0,N).
 
-sum_hex(Char,Accum0,Accum) :-
-    hex_val(Char,N),
-    Accum is (Accum0 << 4) + N.
+bytes_int([],Sum,Sum).
+bytes_int([Byte|Bytes],N0,N) :-
+    N1 is N0 << 8 + Byte,
+    bytes_int(Bytes,N1,N).
 
-hex_val(0'0,0).
-hex_val(0'1,1).
-hex_val(0'2,2).
-hex_val(0'3,3).
-hex_val(0'4,4).
-hex_val(0'5,5).
-hex_val(0'6,6).
-hex_val(0'7,7).
-hex_val(0'8,8).
-hex_val(0'9,9).
-hex_val(0'a,10).
-hex_val(0'b,11).
-hex_val(0'c,12).
-hex_val(0'd,13).
-hex_val(0'e,14).
-hex_val(0'f,15).
 
 %% attr(Var, Value)
 %
