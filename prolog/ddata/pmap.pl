@@ -1,4 +1,4 @@
-:- module(ddata_pmap, [
+:- module(pmap, [
     cons/4,
     delete/3,
     delta/4,

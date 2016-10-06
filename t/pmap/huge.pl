@@ -1,4 +1,4 @@
-:- use_module(library(ddata/pmap)).
+:- use_module(library(ddata/pmap), []).
 :- use_module(library(random), [random/1]).
 
 
@@ -9,7 +9,7 @@ lots_of_keys(Keys) :-
     sort(L,Keys).  % remove duplicates
 
 insert(Key,Map0,Map) :-
-    delta(Key,true,Map0,Map).
+    pmap:delta(Key,true,Map0,Map).
 
 :- use_module(library(tap)).
 
