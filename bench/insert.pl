@@ -27,7 +27,7 @@ random_keys(Unique) :-
 
 random_values(Keys,Values) :-
     same_length(Keys,Values),
-    maplist(arbitrary(any),Values).
+    maplist(arbitrary(atom),Values).
 
 
 map(Map,Keys,Vals) :-
