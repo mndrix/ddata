@@ -1,4 +1,5 @@
 :- use_module(library(ddata/map), [kv/3]).
+:- use_module(library(ddata/pmap), [delta/4]).
 :- use_module(library(quickcheck), [arbitrary/2]).
 :- use_module(library(random), [random_permutation/2]).
 :- use_module(library(assoc), [empty_assoc/1,put_assoc/4]).
@@ -13,6 +14,7 @@ main(_) :-
     compare([ assoc(_,Keys,Vals)
             , dict(_,Keys,Vals)
             , map(_,Keys,Vals)
+            , pmap(_,Keys,Vals)
             , rbtree(_,Keys,Vals)
            ]).
 
@@ -32,6 +34,10 @@ random_values(Keys,Values) :-
 
 map(Map,Keys,Vals) :-
     maplist(kv(Map),Keys,Vals).
+
+
+pmap(Map,Keys,Vals) :-
+    foldl(delta,Keys,Vals,empty,Map).
 
 
 dict(Dict,Keys,Vals) :-
