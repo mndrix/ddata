@@ -4,10 +4,10 @@
 
 'matching keys, variable values' :-
     % describe the first map
-    foldl(delta, [alpha,beta,gamma],[a,b,c],empty,One),
+    pairs(One, [alpha-a,beta-b,gamma-c]),
 
     % describe the second map, leaving holes for values
-    foldl(delta, [alpha,beta,gamma],[A,B,C],empty,Two),
+    pairs(Two,[alpha-A,beta-B,gamma-C]),
 
     % unify
     One = Two,
@@ -27,8 +27,8 @@ disjoint(fail) :-
     M1 = M2.
 
 'unification after deletion' :-
-    foldl(delta, [alpha,beta,foo],[a,b,f],empty,Foo0),
-    foldl(delta, [alpha,beta,bar],[a,b,b],empty,Bar0),
+    pairs(Foo0,[alpha-a,beta-b,foo-f]),
+    pairs(Bar0,[alpha-a,beta-b,bar-b]),
 
     % remove keys to make identical maps
     delta(foo,_,Foo,Foo0),

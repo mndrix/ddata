@@ -1,11 +1,9 @@
 :- use_module(library(ddata/pmap)).
 
 greek(Map) :-
-    foldl(
-        delta,
-        [alpha,beta,gamma,delta],
-        [one,  two, three,four ],
-        empty,Map
+    pairs(
+        Map,
+        [alpha-one, beta-two, gamma-three, delta-four]
     ).
 
 :- use_module(library(tap)).

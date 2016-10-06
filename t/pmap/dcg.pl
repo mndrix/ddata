@@ -30,7 +30,7 @@ created :-
 
 
 summing :-
-    foldl(delta,[x,y],[7,2],empty,Map0),
+    pairs(Map0,[x-7, y-2]),
     phrase(sum_this,Map0,Map),
     kv(Map,sum,Sum),
     Sum == 9.
