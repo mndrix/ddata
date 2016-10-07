@@ -14,6 +14,7 @@ main(_) :-
     compare([ assoc(_,Keys,Vals)
             , dict(_,Keys,Vals)
             , map(_,Keys,Vals)
+            , pairs(_,Keys,Vals)
             , pmap(_,Keys,Vals)
             , rbtree(_,Keys,Vals)
            ]).
@@ -38,6 +39,12 @@ map(Map,Keys,Vals) :-
 
 pmap(Map,Keys,Vals) :-
     foldl(delta,Keys,Vals,empty,Map).
+
+
+pairs(KVs,Keys,Vals) :-
+    foldl(insert_pair,Keys,Vals,[],KVs).
+
+insert_pair(K,V,KVs,[K-V|KVs]).
 
 
 dict(Dict,Keys,Vals) :-
