@@ -5,7 +5,7 @@
 :- use_module(library(clpfd)).
 
 pairs([K-V|Pairs]) -->
-    delta(K,V),
+    insert(K,V),
     pairs(Pairs).
 pairs([]) -->
     [].
@@ -15,7 +15,7 @@ sum_this -->
     { Sum #= X + Y },
     kv(x,X),
     kv(y,Y),
-    delta(sum,Sum).
+    insert(sum,Sum).
 
 :- use_module(library(tap)).
 

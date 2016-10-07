@@ -10,9 +10,9 @@ greek(Map) :-
 
 'three insertions' :-
     % declare map contents
-    delta(hello, world, empty,Map1),
-    delta(goodbye, friends, Map1,Map2),
-    delta(list, [1,2,3], Map2,Map),
+    insert(hello, world, empty,Map1),
+    insert(goodbye, friends, Map1,Map2),
+    insert(list, [1,2,3], Map2,Map),
 
     % can we fetch the right values?
     kv(Map,hello, World),
@@ -24,8 +24,8 @@ greek(Map) :-
 
 
 'duplicate keys'(fail) :-
-    delta(one, 1, empty, Map1),
-    delta(one, won, Map1, _).
+    insert(one, 1, empty, Map1),
+    insert(one, won, Map1, _).
 
 
 size :-
@@ -46,16 +46,16 @@ keys :-
     setof(Key-Value,kv(Map,Key,Value),Pairs),
     Pairs == [ alpha-one, beta-two, delta-four, gamma-three ].
 
-'iterate keys with delta/4' :-
+'iterate keys with insert/4' :-
     greek(Map),
-    setof(Key-Value,Map0^delta(Key,Value,Map0,Map),Pairs),
+    setof(Key-Value,Map0^insert(Key,Value,Map0,Map),Pairs),
     Pairs == [ alpha-one, beta-two, delta-four, gamma-three ].
 
 'iterate values' :-
-    delta(alpha, greek, empty, Map1),
-    delta(beta, greek, Map1, Map2),
-    delta(aleph, hebrew, Map2, Map3),
-    delta(beth, hebrew, Map3, Map),
+    insert(alpha, greek, empty, Map1),
+    insert(beta, greek, Map1, Map2),
+    insert(aleph, hebrew, Map2, Map3),
+    insert(beth, hebrew, Map3, Map),
 
     setof(Letter,kv(Map,Letter,greek),Greek),
     Greek == [alpha, beta],

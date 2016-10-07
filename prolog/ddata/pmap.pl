@@ -1,7 +1,7 @@
 :- module(pmap, [
     cons/4,
     delete/3,
-    delta/4,
+    insert/4,
     keys/2,
     kv//2,
     kv/3,
@@ -36,21 +36,21 @@ a single node to avoid storing and searching the entire, deep structure.
 
 */
 
-%% delta(+Key,?Value,+Without,?With) is semidet.
-%% delta(+Key,?Value,?Without,+With) is semidet.
-%% delta(?Key,?Value,?Without,+With) is multi.
+%% insert(+Key,?Value,+Without,?With) is semidet.
+%% insert(+Key,?Value,?Without,+With) is semidet.
+%% insert(?Key,?Value,?Without,+With) is multi.
 %
 %  True if With maps Key to Value, Without has no mapping for Key and all other
 %  mappings are identical. This is the fundamental pmap operation upon which all
 %  others are built.
-delta(Key,Value,Without,With) :-
+insert(Key,Value,Without,With) :-
     % validate the mode
     ( ground(Key), nonvar(Without) -> true
     ; ground(Key), nonvar(With) -> true
     ; var(Key), nonvar(With) ->
         kv(With,Key,_)
     ; otherwise ->
-        throw('Invalid mode for delta/4')
+        throw('Invalid mode for insert/4')
     ),
 
     ddata_map:hash(Key,Hash),
@@ -159,7 +159,7 @@ hash_depth_n_(Hash,Depth,N) :-
 kv(Map,Key,Value) :-
     ground(Key),
     !,
-    delta(Key,Value,_,Map).
+    insert(Key,Value,_,Map).
 kv(Map,Key,Value) :-
     kv_(Map,Key,Value).
 
@@ -211,7 +211,7 @@ quickcheck:arbitrary(pmap(K,V),Map) :-
     length(Keys,Len),
     length(Vals,Len),
     maplist(quickcheck:arbitrary(V),Vals),
-    foldl(delta,Keys,Vals,empty,Map).
+    foldl(insert,Keys,Vals,empty,Map).
 
 
 %% size(+Map:pmap, -N:nonneg) is det.
@@ -236,8 +236,8 @@ size_(Plump,N) :-
 %
 %  True if Map has a key for each of Keys.
 keys(Map,Keys) :-
-    ( nonvar(Keys) ->  % delta/4 can't yet handle an unbound Key
-        foldl(delta,Keys,_Vals,empty,Map)
+    ( nonvar(Keys) ->  % insert/4 can't yet handle an unbound Key
+        foldl(insert,Keys,_Vals,empty,Map)
     ; nonvar(Map) ->
         findall(Key,kv(Map,Key,_),Keys)
     ; otherwise ->
@@ -249,20 +249,20 @@ keys(Map,Keys) :-
 %% delete(+Key,-Map0:pmap,+Map:pmap) is semidet.
 %
 %  True if removing Key from Map0 yields Map.  A convenience
-%  wrapper around delta/4.
+%  wrapper around insert/4.
 delete(Key,MapWith,MapWithout) :-
-    delta(Key,_Val,MapWithout,MapWith).
+    insert(Key,_Val,MapWithout,MapWith).
 
 
 %% cons(+Key,?Value,+Map0,-Map) is semidet.
 %% cons(?Key,?Value,?Map0,+Map) is semidet.
 %
 %  True if Key maps to Value in Map but is absent from Map0. This is identical
-%  to delta/4 but it arbitrarily chooses a single mapping to remove (instead of
+%  to insert/4 but it arbitrarily chooses a single mapping to remove (instead of
 %  iterating) when called without a key.  It can be helpful for incrementally
 %  building and deconstructing a map.
 cons(Key,Value,MapWithout,MapWith) :-
-    once(delta(Key,Value,MapWithout,MapWith)).
+    once(insert(Key,Value,MapWithout,MapWith)).
 
 
 %% pairs(+Map,-KVs:list) is det.

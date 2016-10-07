@@ -17,13 +17,13 @@
 
 
 identical :-
-    delta(hello,world,empty,M1),
-    delta(hello,world,empty,M2),
+    insert(hello,world,empty,M1),
+    insert(hello,world,empty,M2),
     M1 = M2.
 
 disjoint(fail) :-
-    delta(pi,3.14159,empty,M1),
-    delta(alpha,a,empty,M2),
+    insert(pi,3.14159,empty,M1),
+    insert(alpha,a,empty,M2),
     M1 = M2.
 
 'unification after deletion' :-
@@ -31,8 +31,8 @@ disjoint(fail) :-
     pairs(Bar0,[alpha-a,beta-b,bar-b]),
 
     % remove keys to make identical maps
-    delta(foo,_,Foo,Foo0),
-    delta(bar,_,Bar,Bar0),
+    insert(foo,_,Foo,Foo0),
+    insert(bar,_,Bar,Bar0),
 
     % the maps should unify
     Foo = Bar.

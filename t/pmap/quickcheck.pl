@@ -6,7 +6,7 @@ prop_insert_exists(Ks:list(integer)) :-
     same_length(Keys,Vals),
     maplist(arbitrary(integer),Vals),
 
-    foldl(delta,Keys,Vals,empty,Map),
+    foldl(insert,Keys,Vals,empty,Map),
     maplist(kv(Map),Keys,Got),
     Vals == Got.
 
