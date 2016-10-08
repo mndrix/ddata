@@ -36,6 +36,11 @@ a single node to avoid storing and searching the entire, deep structure.
 
 */
 
+% tree configuration parameters
+plump_width(8).
+plump_shift(3).
+plump_mask(0b111).
+
 %% insert(+Key,?Value,+Without,?With) is semidet.
 %% insert(+Key,?Value,?Without,+With) is semidet.
 %% insert(?Key,?Value,?Without,+With) is multi.
@@ -65,12 +70,14 @@ trim_value(trim(_,_,_,Value), Value).
 
 
 plump(P) :-
-    functor(P,plump,8).
+    plump_width(Width),
+    functor(P,plump,Width).
 
 
 empty_plump(P) :-
     plump(P),
-    foreach(between(1,8,N),arg(N,P,empty)).
+    plump_width(Width),
+    foreach(between(1,Width,N),arg(N,P,empty)).
 
 
 % two plump nodes (A0 and B0) are identical to each other except for the child
@@ -149,7 +156,9 @@ hash_depth_n(Hash,Depth,N) :-
     when((ground(Hash),ground(Depth)), hash_depth_n_(Hash,Depth,N)).
 
 hash_depth_n_(Hash,Depth,N) :-
-    N is ((Hash >> (3*Depth)) /\ 0b111) + 1.
+    plump_shift(Shift),
+    plump_mask(Mask),
+    N is ((Hash >> (Shift*Depth)) /\ Mask) + 1.
 
 
 %% kv(+Map,+Key,?Value) is semidet.
