@@ -95,10 +95,20 @@ differ_in_one_child(A0,B0,N,ChildA,ChildB) :-
     plump(B0),
     nth_child(N,A0,ChildA),
     nth_child(N,B0,ChildB),
-    map_args(differ_(N),A0,B0).
+    plump_width(Width),
+    differ_in_one_child_(Width,N,A0,B0).
+
+differ_in_one_child_(0,_,_,_) :- !.
+differ_in_one_child_(I0,N,A,B) :-
+    arg(I0,A,X),
+    arg(I0,B,Y),
+    differ_(N,I0,X,Y),
+    succ(I,I0),
+    differ_in_one_child_(I,N,A,B).
 
 differ_(N,N,A,B) :-
-    dif(A,B).
+    dif(A,B),
+    !.
 differ_(N,M,A,A) :-
     dif(N,M).
 
@@ -106,28 +116,6 @@ differ_(N,M,A,A) :-
 nth_child(N,Plump,Child) :-
     plump(Plump),
     arg(N,Plump,Child).
-
-
-% call once(Goal(N,A,B)) for each corresponding argument of TermA and TermB. N
-% is the argument's index (1-based). A is the argument for TermA.  B is the
-% argument for TermB.
-%
-% There's no guarantee about the order in which arguments
-% are traversed.  TermA and TermB must have the same functor.
-map_args(Goal,TermA,TermB) :-
-    functor(TermA,F,Arity),
-    functor(TermB,F,Arity),
-    map_args_(Arity,Goal,TermA,TermB).
-
-map_args_(0,_,_,_) :-
-    !.
-map_args_(N,Goal,TermA,TermB) :-
-    arg(N,TermA,A),
-    arg(N,TermB,B),
-    once(call(Goal,N,A,B)),
-    N0 is N-1,
-    map_args_(N0,Goal,TermA,TermB).
-
 
 
 % insert(+Depth:nonneg,+Hash,+Key,?Value,?Without,?With)
