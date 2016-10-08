@@ -1,5 +1,5 @@
 :- use_module(library(ddata/map), [kv/3]).
-:- use_module(library(ddata/pmap), [delta/4]).
+:- use_module(library(ddata/pmap), [insert/4]).
 :- use_module(library(quickcheck), [arbitrary/2]).
 :- use_module(library(random), [random_permutation/2]).
 :- use_module(library(assoc), [empty_assoc/1,put_assoc/4]).
@@ -38,7 +38,7 @@ map(Map,Keys,Vals) :-
 
 
 pmap(Map,Keys,Vals) :-
-    foldl(delta,Keys,Vals,empty,Map).
+    foldl(insert,Keys,Vals,empty,Map).
 
 
 pairs(KVs,Keys,Vals) :-
