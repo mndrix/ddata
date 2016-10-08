@@ -134,7 +134,7 @@ insert(Depth,Hash,K,V,Trim,With) :-
     plump(With),
     trim_depth(Trim,Depth),
     trim_hash(Trim,TrimHash),
-    dif(TrimHash,Hash),  % implies that Trim's key \= K
+    TrimHash \== Hash,  % implies that Trim's key \= K
     trim_as_plump(Trim,Without),
     insert_plumps(Depth,Hash,K,V,Without,With),
     !.
