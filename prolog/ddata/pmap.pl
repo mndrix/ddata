@@ -74,10 +74,17 @@ plump(P) :-
     functor(P,plump,Width).
 
 
+% true if all arguments of P are 'empty'
 empty_plump(P) :-
     plump(P),
     plump_width(Width),
-    foreach(between(1,Width,N),arg(N,P,empty)).
+    empty_plump_(Width,P).
+
+empty_plump_(0,_) :- !.
+empty_plump_(N0,P) :-
+    arg(N0,P,empty),
+    succ(N,N0),
+    empty_plump_(N,P).
 
 
 % two plump nodes (A0 and B0) are identical to each other except for the child
