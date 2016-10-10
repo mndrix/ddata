@@ -95,15 +95,49 @@ differ_in_one_child(A0,B0,N,ChildA,ChildB) :-
     plump(B0),
     arg(N,A0,ChildA),
     arg(N,B0,ChildB),
-    plump_width(Width),
-    differ_in_one_child_(Width,N,A0,B0),
+    differ_in_one_child_(N,A0,B0),
     dif(ChildA,ChildB).
 
-differ_in_one_child_(0,_,_,_) :- !.
-differ_in_one_child_(I0,N,A,B) :-
-    ( I0 = N -> true; arg(I0,A,X), arg(I0,B,X) ),
-    succ(I,I0),
-    differ_in_one_child_(I,N,A,B).
+differ_in_one_child_(
+    1,
+    plump(_,A,B,C,D,E,F,G),
+    plump(_,A,B,C,D,E,F,G)
+).
+differ_in_one_child_(
+    2,
+    plump(A,_,B,C,D,E,F,G),
+    plump(A,_,B,C,D,E,F,G)
+).
+differ_in_one_child_(
+    3,
+    plump(A,B,_,C,D,E,F,G),
+    plump(A,B,_,C,D,E,F,G)
+).
+differ_in_one_child_(
+    4,
+    plump(A,B,C,_,D,E,F,G),
+    plump(A,B,C,_,D,E,F,G)
+).
+differ_in_one_child_(
+    5,
+    plump(A,B,C,D,_,E,F,G),
+    plump(A,B,C,D,_,E,F,G)
+).
+differ_in_one_child_(
+    6,
+    plump(A,B,C,D,E,_,F,G),
+    plump(A,B,C,D,E,_,F,G)
+).
+differ_in_one_child_(
+    7,
+    plump(A,B,C,D,E,F,_,G),
+    plump(A,B,C,D,E,F,_,G)
+).
+differ_in_one_child_(
+    8,
+    plump(A,B,C,D,E,F,G,_),
+    plump(A,B,C,D,E,F,G,_)
+).
 
 
 nth_child(N,Plump,Child) :-
