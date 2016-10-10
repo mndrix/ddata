@@ -93,24 +93,17 @@ empty_plump_(N0,P) :-
 differ_in_one_child(A0,B0,N,ChildA,ChildB) :-
     plump(A0),
     plump(B0),
-    nth_child(N,A0,ChildA),
-    nth_child(N,B0,ChildB),
+    arg(N,A0,ChildA),
+    arg(N,B0,ChildB),
     plump_width(Width),
-    differ_in_one_child_(Width,N,A0,B0).
+    differ_in_one_child_(Width,N,A0,B0),
+    dif(ChildA,ChildB).
 
 differ_in_one_child_(0,_,_,_) :- !.
 differ_in_one_child_(I0,N,A,B) :-
-    arg(I0,A,X),
-    arg(I0,B,Y),
-    differ_(N,I0,X,Y),
+    ( I0 = N -> true; arg(I0,A,X), arg(I0,B,X) ),
     succ(I,I0),
     differ_in_one_child_(I,N,A,B).
-
-differ_(N,N,A,B) :-
-    dif(A,B),
-    !.
-differ_(N,M,A,A) :-
-    dif(N,M).
 
 
 nth_child(N,Plump,Child) :-
