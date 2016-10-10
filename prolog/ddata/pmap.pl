@@ -136,8 +136,13 @@ insert_plumps(Depth,Hash,K,V,Without,With) :-
     nth_child(N,With,ChildWith),
     nth_child(N,Without,ChildWithout),
     succ(Depth,Depth1),
-    differ_in_one_child(Without,With,N,ChildWithout,ChildWith),
-    insert(Depth1,Hash,K,V,ChildWithout,ChildWith).
+    ( ground(Hash), nonvar(ChildWithout) ->
+        insert(Depth1,Hash,K,V,ChildWithout,ChildWith),
+        differ_in_one_child(Without,With,N,ChildWithout,ChildWith)
+    ;
+        differ_in_one_child(Without,With,N,ChildWithout,ChildWith),
+        insert(Depth1,Hash,K,V,ChildWithout,ChildWith)
+    ).
 
 
 hash_depth_n(Hash,Depth,N) :-
