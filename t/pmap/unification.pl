@@ -7,7 +7,7 @@
     pairs(One, [alpha-a,beta-b,gamma-c]),
 
     % describe the second map, leaving holes for values
-    pairs(Two,[alpha-A,beta-B,gamma-C]),
+    pairs(Two,[beta-B,alpha-A,gamma-C]),
 
     % unify
     One = Two,
