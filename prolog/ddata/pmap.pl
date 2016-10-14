@@ -37,9 +37,9 @@ a single node to avoid storing and searching the entire, deep structure.
 */
 
 % tree configuration parameters
-plump_width(8).
-plump_shift(3).
-plump_mask(0b111).
+plump_width(32).
+plump_shift(5).
+plump_mask(0b11111).
 
 % used by term_expansion to generate differ_in_one_child_/3
 differ_clause(N,differ_in_one_child_(N,Left,Right)) :-
