@@ -41,6 +41,37 @@ plump_width(8).
 plump_shift(3).
 plump_mask(0b111).
 
+% used by term_expansion to generate differ_in_one_child_/3
+differ_clause(N,differ_in_one_child_(N,Left,Right)) :-
+    plump_width(Width),
+    functor(Left,plump,Width),
+    functor(Right,plump,Width),
+    differ_clause_(Width,N,Left,Right).
+
+differ_clause_(0,_,_,_) :- !.
+differ_clause_(I,N,Left,Right) :-
+    ( I=N -> true; arg(I,Left,X), arg(I,Right,X) ),
+    succ(I1,I),
+    differ_clause_(I1,N,Left,Right).
+
+
+term_expansion(plump,plump(Plump)) :-
+    plump_width(Width),
+    functor(Plump,plump,Width).
+term_expansion(differ_in_one_child_,Terms) :-
+    plump_width(Width),
+    setof(
+        Term,
+        N^(between(1,Width,N),differ_clause(N,Term)),
+        Terms
+    ).
+
+
+% trigger term_expansion
+plump.
+differ_in_one_child_.
+
+
 %% insert(+Key,?Value,+Without,?With) is semidet.
 %% insert(+Key,?Value,?Without,+With) is semidet.
 %% insert(?Key,?Value,?Without,+With) is multi.
@@ -69,9 +100,6 @@ trim_key(trim(_,_,Key,_), Key).
 trim_value(trim(_,_,_,Value), Value).
 
 
-plump(plump(_,_,_,_,_,_,_,_)).
-
-
 % true if all arguments of P are 'empty'
 empty_plump(P) :-
     plump(P),
@@ -96,46 +124,6 @@ differ_in_one_child(A0,B0,N,ChildA,ChildB) :-
     differ_in_one_child_(N,A0,B0),
     dif(ChildA,ChildB).
 
-differ_in_one_child_(
-    1,
-    plump(_,A,B,C,D,E,F,G),
-    plump(_,A,B,C,D,E,F,G)
-).
-differ_in_one_child_(
-    2,
-    plump(A,_,B,C,D,E,F,G),
-    plump(A,_,B,C,D,E,F,G)
-).
-differ_in_one_child_(
-    3,
-    plump(A,B,_,C,D,E,F,G),
-    plump(A,B,_,C,D,E,F,G)
-).
-differ_in_one_child_(
-    4,
-    plump(A,B,C,_,D,E,F,G),
-    plump(A,B,C,_,D,E,F,G)
-).
-differ_in_one_child_(
-    5,
-    plump(A,B,C,D,_,E,F,G),
-    plump(A,B,C,D,_,E,F,G)
-).
-differ_in_one_child_(
-    6,
-    plump(A,B,C,D,E,_,F,G),
-    plump(A,B,C,D,E,_,F,G)
-).
-differ_in_one_child_(
-    7,
-    plump(A,B,C,D,E,F,_,G),
-    plump(A,B,C,D,E,F,_,G)
-).
-differ_in_one_child_(
-    8,
-    plump(A,B,C,D,E,F,G,_),
-    plump(A,B,C,D,E,F,G,_)
-).
 
 
 nth_child(N,Plump,Child) :-
