@@ -69,9 +69,7 @@ trim_key(trim(_,_,Key,_), Key).
 trim_value(trim(_,_,_,Value), Value).
 
 
-plump(P) :-
-    plump_width(Width),
-    functor(P,plump,Width).
+plump(plump(_,_,_,_,_,_,_,_)).
 
 
 % true if all arguments of P are 'empty'
