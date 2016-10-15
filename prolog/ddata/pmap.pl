@@ -41,18 +41,17 @@ plump_width(32).
 plump_shift(5).
 plump_mask(0b11111).
 
-% used by term_expansion to generate differ_in_one_child_/3
-differ_clause(N,differ_in_one_child_(N,Left,Right)) :-
+differ_clause(N,(differ_in_one_child(N,A,B,ChildA,ChildB):-dif(ChildA,ChildB))) :-
     plump_width(Width),
-    functor(Left,plump,Width),
-    functor(Right,plump,Width),
-    differ_clause_(Width,N,Left,Right).
+    functor(A,plump,Width),
+    functor(B,plump,Width),
+    foreach(
+        between(1,Width,I),
+        differ_clause_(I,N,A,B,ChildA,ChildB)
+    ).
 
-differ_clause_(0,_,_,_) :- !.
-differ_clause_(I,N,Left,Right) :-
-    ( I=N -> true; arg(I,Left,X), arg(I,Right,X) ),
-    succ(I1,I),
-    differ_clause_(I1,N,Left,Right).
+differ_clause_(I,N,A,B,ChildA,ChildB) :-
+    ( I==N -> arg(I,A,ChildA),arg(I,B,ChildB) ; arg(I,A,X),arg(I,B,X) ).
 
 
 term_expansion(plump,plump(Plump)) :-
@@ -62,11 +61,11 @@ term_expansion(empty_plump,empty_plump(Plump)) :-
     plump_width(Width),
     functor(Plump,plump,Width),
     foreach(between(1,Width,N),arg(N,Plump,empty)).
-term_expansion(differ_in_one_child_,Terms) :-
+term_expansion(differ_in_one_child,Terms) :-
     plump_width(Width),
-    setof(
+    findall(
         Term,
-        N^(between(1,Width,N),differ_clause(N,Term)),
+        (between(1,Width,N),differ_clause(N,Term)),
         Terms
     ).
 
@@ -74,7 +73,7 @@ term_expansion(differ_in_one_child_,Terms) :-
 % trigger term_expansion
 plump.
 empty_plump.
-differ_in_one_child_.
+differ_in_one_child.
 
 
 %% insert(+Key,?Value,+Without,?With) is semidet.
@@ -103,19 +102,6 @@ trim_depth(trim(Depth,_,_,_), Depth).
 trim_hash(trim(_,Hash,_,_), Hash).
 trim_key(trim(_,_,Key,_), Key).
 trim_value(trim(_,_,_,Value), Value).
-
-
-% two plump nodes (A0 and B0) are identical to each other except for the child
-% in position N.  A has ChildA in that position; B has ChildB.  ChildA and
-% ChildB are different from one another.
-differ_in_one_child(A0,B0,N,ChildA,ChildB) :-
-    plump(A0),
-    plump(B0),
-    arg(N,A0,ChildA),
-    arg(N,B0,ChildB),
-    differ_in_one_child_(N,A0,B0),
-    dif(ChildA,ChildB).
-
 
 
 nth_child(N,Plump,Child) :-
@@ -150,9 +136,9 @@ insert_plumps(Depth,Hash,K,V,Without,With) :-
     succ(Depth,Depth1),
     ( ground(Hash), nonvar(ChildWithout) ->
         insert(Depth1,Hash,K,V,ChildWithout,ChildWith),
-        differ_in_one_child(Without,With,N,ChildWithout,ChildWith)
+        differ_in_one_child(N,Without,With,ChildWithout,ChildWith)
     ;
-        differ_in_one_child(Without,With,N,ChildWithout,ChildWith),
+        differ_in_one_child(N,Without,With,ChildWithout,ChildWith),
         insert(Depth1,Hash,K,V,ChildWithout,ChildWith)
     ).
 
@@ -213,7 +199,7 @@ trim_as_plump(Trim0,AsPlump) :-
     % relate empty plump to plump containing deeper trim element
     hash_depth_n(Hash,Depth0,N),
     empty_plump(Empty),
-    differ_in_one_child(Empty,AsPlump,N,empty,Trim1).
+    differ_in_one_child(N,Empty,AsPlump,empty,Trim1).
 
 
 :- multifile quickcheck:arbitrary/2.
