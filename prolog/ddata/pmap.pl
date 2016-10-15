@@ -58,6 +58,10 @@ differ_clause_(I,N,Left,Right) :-
 term_expansion(plump,plump(Plump)) :-
     plump_width(Width),
     functor(Plump,plump,Width).
+term_expansion(empty_plump,empty_plump(Plump)) :-
+    plump_width(Width),
+    functor(Plump,plump,Width),
+    foreach(between(1,Width,N),arg(N,Plump,empty)).
 term_expansion(differ_in_one_child_,Terms) :-
     plump_width(Width),
     setof(
@@ -69,6 +73,7 @@ term_expansion(differ_in_one_child_,Terms) :-
 
 % trigger term_expansion
 plump.
+empty_plump.
 differ_in_one_child_.
 
 
@@ -98,19 +103,6 @@ trim_depth(trim(Depth,_,_,_), Depth).
 trim_hash(trim(_,Hash,_,_), Hash).
 trim_key(trim(_,_,Key,_), Key).
 trim_value(trim(_,_,_,Value), Value).
-
-
-% true if all arguments of P are 'empty'
-empty_plump(P) :-
-    plump(P),
-    plump_width(Width),
-    empty_plump_(Width,P).
-
-empty_plump_(0,_) :- !.
-empty_plump_(N0,P) :-
-    arg(N0,P,empty),
-    succ(N,N0),
-    empty_plump_(N,P).
 
 
 % two plump nodes (A0 and B0) are identical to each other except for the child
