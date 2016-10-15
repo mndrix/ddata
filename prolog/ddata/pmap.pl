@@ -119,8 +119,8 @@ insert(Depth,Hash,Key,Value,empty,Trim) :-
 insert(Depth,Hash,K,V,Trim,With) :-
     plump(With),
     trim_depth(Trim,Depth),
-    trim_hash(Trim,TrimHash),
-    TrimHash \== Hash,  % implies that Trim's key \= K
+    trim_key(Trim,TrimKey),
+    TrimKey \== K,
     trim_as_plump(Trim,Without),
     insert_plumps(Depth,Hash,K,V,Without,With),
     !.
@@ -130,26 +130,34 @@ insert(Depth,Hash,K,V,Without,With) :-
 insert_plumps(Depth,Hash,K,V,Without,With) :-
     plump(Without),
     plump(With),
-    hash_depth_n(Hash,Depth,N),
+    hash_residue_n(Hash,Residue,N),
     nth_child(N,With,ChildWith),
     nth_child(N,Without,ChildWithout),
     succ(Depth,Depth1),
     ( ground(Hash), nonvar(ChildWithout) ->
-        insert(Depth1,Hash,K,V,ChildWithout,ChildWith),
+        insert(Depth1,Residue,K,V,ChildWithout,ChildWith),
         differ_in_one_child(N,Without,With,ChildWithout,ChildWith)
     ;
         differ_in_one_child(N,Without,With,ChildWithout,ChildWith),
-        insert(Depth1,Hash,K,V,ChildWithout,ChildWith)
+        insert(Depth1,Residue,K,V,ChildWithout,ChildWith)
     ).
 
 
-hash_depth_n(Hash,Depth,N) :-
-    when((ground(Hash),ground(Depth)), hash_depth_n_(Hash,Depth,N)).
-
-hash_depth_n_(Hash,Depth,N) :-
-    plump_shift(Shift),
-    plump_mask(Mask),
-    N is ((Hash >> (Shift*Depth)) /\ Mask) + 1.
+hash_residue_n(Hash,Residue,N) :-
+    ( ground(Hash) ->
+        plump_mask(Mask),
+        plump_shift(Shift),
+        N is (Hash /\ Mask) + 1,
+        Residue is Hash >> Shift
+    ; ground(Residue), ground(N) ->
+        plump_shift(Shift),
+        Hash is (Residue << Shift) \/ (N-1)
+    ; otherwise ->
+        when(
+            (ground(Hash);(ground(Residue),ground(N))),
+            hash_residue_n(Hash,Residue,N)
+        )
+    ).
 
 
 %% kv(+Map,+Key,?Value) is semidet.
@@ -191,13 +199,13 @@ trim_as_plump(Trim0,AsPlump) :-
 
     % describe trim element at Depth + 1
     trim_depth(Trim1,Depth1),
-    trim_hash(Trim1,Hash),
+    trim_hash(Trim1,Residue),
     trim_key(Trim1,Key),
     trim_value(Trim1,Value),
     succ(Depth0,Depth1),
 
     % relate empty plump to plump containing deeper trim element
-    hash_depth_n(Hash,Depth0,N),
+    hash_residue_n(Hash,Residue,N),
     empty_plump(Empty),
     differ_in_one_child(N,Empty,AsPlump,empty,Trim1).
 
