@@ -100,7 +100,7 @@ insert(Key,Value,Without,With) :-
     ),
 
     ddata_map:hash(Key,Hash),
-    insert(Hash,Key,Value,Without,With).
+    insert(Without,With,Hash,Key,Value).
 
 
 trim(trim(_,_,_)).
@@ -115,19 +115,19 @@ nth_child(N,Plump,Child) :-
 
 
 % insert(+Depth:nonneg,+Hash,+Key,?Value,?Without,?With)
-insert(Hash,Key,Value,empty,Trim) :-
+insert(empty,Trim,Hash,Key,Value) :-
     trim_hash(Trim,Hash),
     trim_key(Trim,Key),
     trim_value(Trim,Value),
     !.
-insert(Hash,K,V,Trim,With) :-
+insert(Trim,With,Hash,K,V) :-
     plump(With),
     trim_key(Trim,TrimKey),
     TrimKey \== K,
     trim_as_plump(Trim,Without),
     insert_plumps(Hash,K,V,Without,With),
     !.
-insert(Hash,K,V,Without,With) :-
+insert(Without,With,Hash,K,V) :-
     insert_plumps(Hash,K,V,Without,With).
 
 insert_plumps(Hash,K,V,Without,With) :-
@@ -137,11 +137,11 @@ insert_plumps(Hash,K,V,Without,With) :-
     nth_child(N,With,ChildWith),
     nth_child(N,Without,ChildWithout),
     ( ground(Hash), nonvar(ChildWithout) ->
-        insert(Residue,K,V,ChildWithout,ChildWith),
+        insert(ChildWithout,ChildWith,Residue,K,V),
         differ_in_one_child(N,Without,With,ChildWithout,ChildWith)
     ;
         differ_in_one_child(N,Without,With,ChildWithout,ChildWith),
-        insert(Residue,K,V,ChildWithout,ChildWith)
+        insert(ChildWithout,ChildWith,Residue,K,V)
     ).
 
 
