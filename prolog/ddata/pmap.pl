@@ -103,11 +103,10 @@ insert(Key,Value,Without,With) :-
     insert(0,Hash,Key,Value,Without,With).
 
 
-trim(trim(_,_,_,_)).
-trim_depth(trim(Depth,_,_,_), Depth).
-trim_hash(trim(_,Hash,_,_), Hash).
-trim_key(trim(_,_,Key,_), Key).
-trim_value(trim(_,_,_,Value), Value).
+trim(trim(_,_,_)).
+trim_hash(trim(Hash,_,_), Hash).
+trim_key(trim(_,Key,_), Key).
+trim_value(trim(_,_,Value), Value).
 
 
 nth_child(N,Plump,Child) :-
@@ -116,15 +115,13 @@ nth_child(N,Plump,Child) :-
 
 
 % insert(+Depth:nonneg,+Hash,+Key,?Value,?Without,?With)
-insert(Depth,Hash,Key,Value,empty,Trim) :-
-    trim_depth(Trim,Depth),
+insert(_Depth,Hash,Key,Value,empty,Trim) :-
     trim_hash(Trim,Hash),
     trim_key(Trim,Key),
     trim_value(Trim,Value),
     !.
 insert(Depth,Hash,K,V,Trim,With) :-
     plump(With),
-    trim_depth(Trim,Depth),
     trim_key(Trim,TrimKey),
     TrimKey \== K,
     trim_as_plump(Trim,Without),
@@ -198,17 +195,14 @@ trim_as_plump(Trim0,AsPlump) :-
     plump(AsPlump),
 
     % describe trim element at Depth0
-    trim_depth(Trim0,Depth0),
     trim_hash(Trim0,Hash),
     trim_key(Trim0,Key),
     trim_value(Trim0,Value),
 
     % describe trim element at Depth + 1
-    trim_depth(Trim1,Depth1),
     trim_hash(Trim1,Residue),
     trim_key(Trim1,Key),
     trim_value(Trim1,Value),
-    succ(Depth0,Depth1),
 
     % relate empty plump to plump containing deeper trim element
     hash_residue_n(Hash,Residue,N),
