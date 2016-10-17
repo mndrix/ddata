@@ -26,19 +26,6 @@ A `plump` represents an internal node in the trie, containing several subtrees.
 */
 
 
-%% attr(Var, Value)
-%
-%  True if Var has =|ddata_map|= attribute of Value.
-attr(Var,Value) :-
-    ( nonvar(Var) ->
-        fail
-    ; get_attr(Var,ddata_map,ExistingValue) ->
-        Value = ExistingValue
-    ; otherwise ->
-        put_attr(Var,ddata_map,Value)
-    ).
-
-
 attr_unify_hook(LazyKvA,VarOrVal) :-
     ( get_attr(VarOrVal,ddata_map,LazyKvB) ->
         % two lazy nodes try using same attributed variable
@@ -50,15 +37,15 @@ attr_unify_hook(LazyKvA,VarOrVal) :-
             % differing keys require recursive inserts
             pmap:plump(Plump),
             VarOrVal = Plump,
-            kv(HashA,Plump,KeyA,ValueA),
-            kv(HashB,Plump,KeyB,ValueB)
+            kv_plump(Plump,HashA,KeyA,ValueA),
+            kv_plump(Plump,HashB,KeyB,ValueB)
         )
     ; var(VarOrVal) ->
         throw("eager node is a variable. should never happen")
     ; otherwise ->
         % insert our lazy key-value into this eager node
         LazyKvA = lazy_kv(Hash,Key,Value),
-        kv(Hash,VarOrVal,Key,Value)
+        kv_plump(VarOrVal,Hash,Key,Value)
     ).
 
 
@@ -68,40 +55,15 @@ kv(Map,Key,Value) :-
     unknown_key(Map,Key,Value).
 kv(Map,Key,Value) :-
     pmap:hash(Key,Hash),
-    kv(Hash,Map,Key,Value).
+    put_attr(X,ddata_map,lazy_kv(Hash,Key,Value)),
+    Map = X.
 
 
-kv(Hash,Map,Key,Value) :-
-    ( get_attr(Map,ddata_map,lazy_kv(OtherHash,OtherKey,OtherValue)) ->
-        ( Key==OtherKey ->
-            !,
-            Value=OtherValue
-        ; otherwise ->
-            % push keys down to a lower level
-            del_attr(Map,ddata_map),
-            pmap:plump(Map),
-            kv(OtherHash,Map,OtherKey,OtherValue),
-            kv(Hash,Map,Key,Value)
-        )
-    ; var(Map) ->
-        put_attr(Map,ddata_map,lazy_kv(Hash,Key,Value))
-    ),
-    !.
-kv(Hash,Map,Key,Value) :-
+kv_plump(Map,Hash,Key,Value) :-
     pmap:plump(Map),
     pmap:hash_residue_n(Hash,Residue,N),
-    arg(N,Map,Child),
-    kv(Residue,Child,Key,Value).
-
-
-hash_depth(N,Depth) :-
-    Depth is ceil(log(7*N+1)/log(8))-1.  % ceil(log8(7n+1))-1
-
-
-node(Node,Key,Value) :-
-    functor(Node,node,10 /*2+8*/),
-    arg(1,Node,Key),
-    arg(2,Node,Value).
+    put_attr(Child,ddata_map,lazy_kv(Residue,Key,Value)),
+    arg(N,Map,Child).
 
 
 % non-logical stuff is to avoid instantiating attributed variables
