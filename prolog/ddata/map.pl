@@ -1,5 +1,5 @@
 :- module(ddata_map, [kv/3]).
-:- use_module(library(sha),[sha_hash/3]).
+:- use_module(library(ddata/pmap), []).
 
 /*
 This library is implemented in a very non-logical fashion.  Because
@@ -14,31 +14,6 @@ we'll be fine.
 */
 
 
-%% hash(+Term,-Hash:integer) is det.
-%
-%  Calculate a hash for a ground Term.
-:- if(fail).
-% for testing: term_hash/2 collides more often than SHA1
-hash(Term,Hash) :-
-    must_be(ground,Term),
-    term_hash(Term,Hash).
-:- else.
-hash(Term,Hash) :-
-    must_be(ground,Term),
-    format(string(S),'~k',[Term]),
-    sha_hash(S,Bytes,[algorithm(sha1)]),
-    bytes_int(8,Bytes,Hash).
-:- endif.
-
-
-bytes_int(8,Bytes,Sum) :-
-    bytes_int(8,Bytes,0,Sum).
-
-bytes_int(0,_,Sum,Sum) :- !.
-bytes_int(N0, [Byte|Bytes],Sum0,Sum) :-
-    N is N0 - 1,
-    Sum1 is Sum0 << 8 + Byte,
-    bytes_int(N,Bytes,Sum1,Sum).
 
 
 %% attr(Var, Value)
@@ -83,7 +58,7 @@ kv(Map,Key,Value) :-
     !,
     unknown_key(Map,Key,Value).
 kv(Map,Key,Value) :-
-    hash(Key,Hash),
+    pmap:hash(Key,Hash),
     % n = Hash + 1, because hashes can be zero
     hash_depth(Hash+1,Depth),
     kv(Depth,Hash,Map,Key,Value).

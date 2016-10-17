@@ -8,7 +8,7 @@
     pairs/2,
     size/2
 ]).
-:- use_module(library(ddata/map), []).
+:- use_module(library(sha),[sha_hash/3]).
 
 /*
 Goal:
@@ -18,7 +18,7 @@ A fast, persistent map supporting unification and reversible predicates.
 Design:
 
 A pmap is a key-value map stored as a hash array mapped trie.  A node in the
-tree can be one of three kinds:
+trie can be one of three kinds:
 
   * empty
   * plump
@@ -82,6 +82,33 @@ empty_plump.
 differ_in_one_child.
 
 
+%% hash(+Term,-Hash:integer) is det.
+%
+%  Calculate a hash for a ground Term.
+:- if(fail).
+% for testing: term_hash/2 collides more often than SHA1
+hash(Term,Hash) :-
+    must_be(ground,Term),
+    term_hash(Term,Hash).
+:- else.
+hash(Term,Hash) :-
+    must_be(ground,Term),
+    format(string(S),'~k',[Term]),
+    sha_hash(S,Bytes,[algorithm(sha1)]),
+    bytes_int(8,Bytes,Hash).
+:- endif.
+
+
+bytes_int(8,Bytes,Sum) :-
+    bytes_int(8,Bytes,0,Sum).
+
+bytes_int(0,_,Sum,Sum) :- !.
+bytes_int(N0, [Byte|Bytes],Sum0,Sum) :-
+    N is N0 - 1,
+    Sum1 is Sum0 << 8 + Byte,
+    bytes_int(N,Bytes,Sum1,Sum).
+
+
 %% insert(+Key,?Value,+Without,?With) is semidet.
 %% insert(+Key,?Value,?Without,+With) is semidet.
 %% insert(?Key,?Value,?Without,+With) is multi.
@@ -99,7 +126,7 @@ insert(Key,Value,Without,With) :-
         throw('Invalid mode for insert/4')
     ),
 
-    ddata_map:hash(Key,Hash),
+    hash(Key,Hash),
     insert(Without,With,Hash,Key,Value).
 
 
