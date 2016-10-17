@@ -2,18 +2,28 @@
 :- use_module(library(ddata/pmap), []).
 
 /*
-This library is implemented in a very non-logical fashion.  Because
-it uses hash functions (an inherently one way operation) and attributed
-variables (a non-logical optimization, in this case), that's the price
-we pay.
+Goal:
 
-However, the publicly accessible APIs (kv/3, etc) should
-present the illusion of logical operations.  As long as
-functional/imperative code stays hidden beneath the covers,
-we'll be fine.
+A fast, declarative map supporting unification and compatibility with pmap.
+
+Design:
+
+A map is a key-value map stored as a hash array mapped trie.  A node in the trie
+can be one of three kinds:
+
+ * variable without attributes
+ * variable with an attribute
+ * plump
+
+A variable without any attributes represents an empty subtree.
+
+A variable with an attribute represents a subtree with only a single node.
+Conceptually it's a lazy representation of the entire subtree where we haven't
+yet performed the work of pushing the key-value pair all the way to a leaf.
+
+A `plump` represents an internal node in the trie, containing several subtrees.
+
 */
-
-
 
 
 %% attr(Var, Value)
@@ -32,24 +42,23 @@ attr(Var,Value) :-
 attr_unify_hook(LazyKvA,VarOrVal) :-
     ( get_attr(VarOrVal,ddata_map,LazyKvB) ->
         % two lazy nodes try using same attributed variable
-        ( LazyKvA = LazyKvB ->
-            % same key requires no more work
-            true
+        LazyKvA = lazy_kv(HashA,KeyA,ValueA),
+        LazyKvB = lazy_kv(HashB,KeyB,ValueB),
+        ( KeyA==KeyB ->
+            ValueA=ValueB
         ; otherwise ->
             % differing keys require recursive inserts
-            node(Node,_,_),
-            VarOrVal = Node,
-            LazyKvA = lazy_kv(DepthA,PartialA,KeyA,ValueA),
-            kv(DepthA,PartialA,Node,KeyA,ValueA),
-            LazyKvB = lazy_kv(DepthB,PartialB,KeyB,ValueB),
-            kv(DepthB,PartialB,Node,KeyB,ValueB)
+            pmap:plump(Plump),
+            VarOrVal = Plump,
+            kv(HashA,Plump,KeyA,ValueA),
+            kv(HashB,Plump,KeyB,ValueB)
         )
     ; var(VarOrVal) ->
         throw("eager node is a variable. should never happen")
     ; otherwise ->
         % insert our lazy key-value into this eager node
-        LazyKvA = lazy_kv(Depth,P,Key,Value),
-        kv(Depth,P,VarOrVal,Key,Value)
+        LazyKvA = lazy_kv(Hash,Key,Value),
+        kv(Hash,VarOrVal,Key,Value)
     ).
 
 
@@ -59,27 +68,30 @@ kv(Map,Key,Value) :-
     unknown_key(Map,Key,Value).
 kv(Map,Key,Value) :-
     pmap:hash(Key,Hash),
-    % n = Hash + 1, because hashes can be zero
-    hash_depth(Hash+1,Depth),
-    kv(Depth,Hash,Map,Key,Value).
+    kv(Hash,Map,Key,Value).
 
-kv(0,_P,Node,Key,Value) :-
-    node(Node,ExistingKey,ExistingValue),
-    !,
-    ( Key = ExistingKey -> true; throw(collision(Key,ExistingKey)) ),
-    Value = ExistingValue.
-kv(Depth,P,Node,Key,Value) :-
-    % postpone walking the tree until later
-    attr(Node,lazy_kv(Depth,P,Key,Value)),
+
+kv(Hash,Map,Key,Value) :-
+    ( get_attr(Map,ddata_map,lazy_kv(OtherHash,OtherKey,OtherValue)) ->
+        ( Key==OtherKey ->
+            !,
+            Value=OtherValue
+        ; otherwise ->
+            % push keys down to a lower level
+            del_attr(Map,ddata_map),
+            pmap:plump(Map),
+            kv(OtherHash,Map,OtherKey,OtherValue),
+            kv(Hash,Map,Key,Value)
+        )
+    ; var(Map) ->
+        put_attr(Map,ddata_map,lazy_kv(Hash,Key,Value))
+    ),
     !.
-kv(Depth,P,Node,Key,Value) :-
-    Depth > 0,
-    node(Node,_,_),
-    N is 3 + (P /\ 0b111),
-    arg(N,Node,Child),
-    Depth1 is Depth - 1,
-    P1 is P >> 3,
-    kv(Depth1,P1,Child,Key,Value).
+kv(Hash,Map,Key,Value) :-
+    pmap:plump(Map),
+    pmap:hash_residue_n(Hash,Residue,N),
+    arg(N,Map,Child),
+    kv(Residue,Child,Key,Value).
 
 
 hash_depth(N,Depth) :-
@@ -94,37 +106,11 @@ node(Node,Key,Value) :-
 
 % non-logical stuff is to avoid instantiating attributed variables
 % while traversing the tree
-unknown_key(Node,Key,Value) :-
-    get_attr(Node,ddata_map,lazy_kv(_Depth,_Partial,Key,Value)),
+unknown_key(Map,Key,Value) :-
+    get_attr(Map,ddata_map,lazy_kv(_Hash,Key,Value)),
     !.
-unknown_key(Node,Key,Value) :-
-    nonvar(Node),
-    ( node(Node,Key,Value),
-      ground(Key)
-    ; between(3,10,N),
-      arg(N,Node,Child),
-      unknown_key(Child,Key,Value)
-    ).
-
-
-show(Map) :-
-    show(Map,0).
-
-show(Map,Indent) :-
-    var(Map),
-    !,
-    indent(Indent),
-    format(".~n").
-show(Node,Indent) :-
-    node(Node,K,V),
-    indent(Indent),
-    format("~p => ~p~n", [K,V]),
-    succ(Indent,NextIndent),
-    forall( between(3,10,N)
-          , ( arg(N,Node,X)
-            , show(X,NextIndent)
-            )
-          ).
-
-indent(N) :-
-    forall( between(1,N,_), write("    ") ).
+unknown_key(Map,Key,Value) :-
+    nonvar(Map),
+    pmap:plump(Map),
+    arg(_,Map,Child),
+    unknown_key(Child,Key,Value).
