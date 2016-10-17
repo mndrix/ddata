@@ -1,4 +1,4 @@
-:- module(ddata_map, [kv/3]).
+:- module(ddata_map, [kv/3,pairs/2]).
 :- use_module(library(ddata/pmap), []).
 
 /*
@@ -76,3 +76,16 @@ unknown_key(Map,Key,Value) :-
     pmap:plump(Map),
     arg(_,Map,Child),
     unknown_key(Child,Key,Value).
+
+
+%% pairs(?Map,+KVs:list) is semidet.
+%
+%  True if each key-value pair in pairs exists in Map.
+pairs(Map,KVs) :-
+    must_be(nonvar,KVs),  % for now
+    pairs_(KVs,Map).
+
+pairs_([],_).
+pairs_([K-V|KVs], Map) :-
+    kv(Map,K,V),
+    pairs_(KVs,Map).

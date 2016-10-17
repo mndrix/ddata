@@ -4,9 +4,7 @@
 
 'three insertions' :-
     % declare map contents
-    kv(Map, hello, world),
-    kv(Map, goodbye, friends),
-    kv(Map, list, [1,2,3]),
+    pairs(Map,[hello-world, goodbye-friends, list-[1,2,3]]),
 
     % can we fetch the right values?
     kv(Map, hello, World),
