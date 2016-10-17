@@ -120,11 +120,10 @@ insert(empty,Trim,Hash,Key,Value) :-
     trim_key(Trim,Key),
     trim_value(Trim,Value),
     !.
-insert(Trim,With,Hash,K,V) :-
+insert(trim(TrimHash,TrimKey,TrimValue),With,Hash,K,V) :-
     plump(With),
-    trim_key(Trim,TrimKey),
     TrimKey \== K,
-    trim_as_plump(Trim,Without),
+    trim_as_plump(trim(TrimHash,TrimKey,TrimValue),Without),
     insert_plumps(Hash,K,V,Without,With),
     !.
 insert(Without,With,Hash,K,V) :-
