@@ -54,13 +54,19 @@ differ_clause_(I,N,A,B,ChildA,ChildB) :-
     ( I==N -> arg(I,A,ChildA),arg(I,B,ChildB) ; arg(I,A,X),arg(I,B,X) ).
 
 
+% generate clauses like:
+% plump(_,_,_,_).
 term_expansion(plump,plump(Plump)) :-
     plump_width(Width),
     functor(Plump,plump,Width).
+% generate clauses like:
+% empty_plump(plump(empty,empty,empty,empty)).
 term_expansion(empty_plump,empty_plump(Plump)) :-
     plump_width(Width),
     functor(Plump,plump,Width),
     foreach(between(1,Width,N),arg(N,Plump,empty)).
+% generate clauses like:
+% differ_in_one_child(1,plump(X,A,B,C),plump(Y,A,B,C),X,Y) :- dif(X,Y).
 term_expansion(differ_in_one_child,Terms) :-
     plump_width(Width),
     findall(
