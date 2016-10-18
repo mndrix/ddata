@@ -42,6 +42,8 @@ attr_unify_hook(LazyKvA,VarOrVal) :-
         )
     ; var(VarOrVal) ->
         throw("eager node is a variable. should never happen")
+    ; VarOrVal = trim(Hash,Key,Value) ->
+        LazyKvA = lazy_kv(Hash,Key,Value)
     ; otherwise ->
         % insert our lazy key-value into this eager node
         LazyKvA = lazy_kv(Hash,Key,Value),
@@ -89,3 +91,28 @@ pairs_([],_).
 pairs_([K-V|KVs], Map) :-
     kv(Map,K,V),
     pairs_(KVs,Map).
+
+
+%% sealed(?Map) is semidet.
+%
+%  True if Map unifies with a sealed map to which no further key-value
+%  associations can be added.
+%
+%  If you think of a non-sealed map as being similar to a partial list, then
+%  this predicate is similar to invoking `Tail=[]` on that partial list.  It
+%  declares that the data structure is complete.
+%
+%  A sealed map and a pmap with the same key-value associations are identical.
+sealed(empty) :- !.
+sealed(trim(_,_,_)) :- !.
+sealed(Plump) :-
+    pmap:plump(Plump),
+    pmap:plump_width(Width),
+    sealed_(Width,Plump).
+
+sealed_(0,_) :- !.
+sealed_(N,Plump) :-
+    arg(N,Plump,Child),
+    sealed(Child),
+    succ(N0,N),
+    sealed_(N0,Plump).
