@@ -1,4 +1,4 @@
-:- module(ddata_map, [kv/3,pairs/2]).
+:- module(map, [kv/3,pairs/2]).
 :- use_module(library(ddata/pmap), []).
 
 /*
@@ -27,7 +27,7 @@ A `plump` represents an internal node in the trie, containing several subtrees.
 
 
 attr_unify_hook(LazyKvA,VarOrVal) :-
-    ( get_attr(VarOrVal,ddata_map,LazyKvB) ->
+    ( get_attr(VarOrVal,map,LazyKvB) ->
         % two lazy nodes try using same attributed variable
         LazyKvA = lazy_kv(HashA,KeyA,ValueA),
         LazyKvB = lazy_kv(HashB,KeyB,ValueB),
@@ -55,21 +55,21 @@ kv(Map,Key,Value) :-
     unknown_key(Map,Key,Value).
 kv(Map,Key,Value) :-
     pmap:hash(Key,Hash),
-    put_attr(X,ddata_map,lazy_kv(Hash,Key,Value)),
+    put_attr(X,map,lazy_kv(Hash,Key,Value)),
     Map = X.
 
 
 kv_plump(Map,Hash,Key,Value) :-
     pmap:plump(Map),
     pmap:hash_residue_n(Hash,Residue,N),
-    put_attr(Child,ddata_map,lazy_kv(Residue,Key,Value)),
+    put_attr(Child,map,lazy_kv(Residue,Key,Value)),
     arg(N,Map,Child).
 
 
 % non-logical stuff is to avoid instantiating attributed variables
 % while traversing the tree
 unknown_key(Map,Key,Value) :-
-    get_attr(Map,ddata_map,lazy_kv(_Hash,Key,Value)),
+    get_attr(Map,map,lazy_kv(_Hash,Key,Value)),
     !.
 unknown_key(Map,Key,Value) :-
     nonvar(Map),
