@@ -40,3 +40,9 @@
 
     setof(Letter,kv(Map,Letter,hebrew),Hebrew),
     Hebrew == [aleph, beth].
+
+pairs :-
+    pairs(Map,[hello-world, goodbye-friends, list-[1,2,3]]), % forward
+    pairs(Map,Pairs0),  % backward
+    keysort(Pairs0,Pairs),
+    Pairs == [goodbye-friends, hello-world, list-[1,2,3]].

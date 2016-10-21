@@ -81,11 +81,11 @@ unknown_key(Map,Key,Value) :-
 
 
 %% pairs(?Map,+KVs:list) is semidet.
+%% pairs(?Map,-KVs:list) is det.
 %
 %  True if each key-value pair in pairs exists in Map.
 pairs(Map,KVs) :-
-    must_be(nonvar,KVs),  % for now
-    pairs_(KVs,Map).
+    ( nonvar(KVs) -> pairs_(KVs,Map); findall(K-V,unknown_key(Map,K,V),KVs) ).
 
 pairs_([],_).
 pairs_([K-V|KVs], Map) :-
