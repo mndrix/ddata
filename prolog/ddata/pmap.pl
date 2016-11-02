@@ -93,7 +93,7 @@ hash(Term,Hash) :-
 :- else.
 hash(Term,Hash) :-
     must_be(ground,Term),
-    format(string(S),'~k',[Term]),
+    term_string(Term,S),
     sha_hash(S,Bytes,[algorithm(sha1)]),
     bytes_int(8,Bytes,Hash).
 :- endif.
